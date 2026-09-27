@@ -68,3 +68,17 @@ Every feature must answer at least one:
 - Does it make the interface calmer?
 
 If not, it does not belong in v1.
+
+## Liquid glass translation
+
+The web interface takes inspiration from the structural ideas in Appllama's open-source liquid-glass work, not its React Native implementation:
+
+- reusable glass surfaces instead of one-off blur rules
+- interactive glass reserved for controls
+- layered translucency, tint, highlight and depth rather than flat opacity
+- content remains visible behind glass so the material has something to react to
+- a non-glass fallback remains available for reduced-transparency environments
+
+The Music For All implementation uses CSS backdrop-filter, saturation, inset highlights, restrained shadows and ambient colour fields. It deliberately avoids making every row a glass card: glass is a navigation/control material, while the library itself remains editorial and quiet.
+
+Reference: [Appllama/liquid-glass-chat-ui](https://github.com/Appllama/liquid-glass-chat-ui)
