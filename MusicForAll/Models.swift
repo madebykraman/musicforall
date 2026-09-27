@@ -42,7 +42,7 @@ enum LicenseKind: String, Codable {
         }
     }
 
-    var allowsDownload: Bool { self != .unknown }
+    var allowsDownload: Bool { self == .publicDomain || self == .cc0 }
 
     var needsAttribution: Bool {
         switch self {
