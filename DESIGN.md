@@ -1,125 +1,118 @@
 # Music For All — Design System
 
-## Reframe
+## Design reset
+The original interface was a library/table layout wrapped in increasingly decorative surfaces. That direction is retired.
 
-Music For All is a responsive local-first web app. The product is not a streaming clone. The library is the product: the user brings music in, keeps it on the device and controls how it is organized and played.
+The current product is designed as a personal listening workspace.
 
-## Visual thesis
+The core screen is not a settings dashboard and not a streaming-service clone. It is a shelf for music: one featured listening state, browsable shelves, then the complete collection.
 
-The new interface is deliberately flat, editorial and utility-first.
+## Composition
 
-The previous build experimented with Liquid Glass and translucent control surfaces. That direction is now retired completely. It made the interface look more like a visual effect than a music tool and became especially noisy on mobile.
+### Desktop
+The application has three persistent structural zones:
+1. top utility bar — identity, global search and local-storage status
+2. narrow navigation rail — Library, Discover, Downloads and Settings
+3. content workspace — each destination has its own composition
 
-The replacement system uses:
-- opaque surfaces
-- warm paper-like neutrals
-- one restrained accent
+The Library workspace is ordered:
+- library identity and import action
+- Continue Listening feature
+- Recently Played shelf
+- Albums shelf
+- complete collection
+
+The player is promoted into a dedicated full-screen listening surface rather than being permanently treated as a modal card.
+
+### Mobile
+Mobile is not a scaled-down desktop table.
+
+The composition becomes:
+- compact header
+- listening feature
+- horizontally scrolling music shelves
+- compact collection rows
+- persistent opaque player dock
+- persistent four-item navigation
+
+The player dock is a utility, not a decorative floating material.
+
+## Visual language
+The product uses a warm editorial palette:
+- warm paper background
+- darker paper surfaces
+- near-black typography
 - thin structural rules
-- square or lightly rounded controls
-- compact information typography
-- generous but controlled spacing
-- artwork as the primary source of colour
+- one restrained burnt accent
+- album artwork as the main source of colour
 
-There is no glass layer in the design.
+There is deliberately no Liquid Glass.
 
-## Mobile composition
+No backdrop-filter.
+No translucent navigation.
+No ambient blur.
+No floating glass capsules.
+No decorative equalizers.
+No permanent dark streaming-app chrome.
 
-The screenshots exposed the important hierarchy:
+The interface should look closer to a well-designed music archive or physical record catalogue than a generic SaaS dashboard.
 
-1. compact brand/header
-2. page title and task
-3. library controls
-4. music rows
-5. player dock
-6. primary navigation
+## Library
+The library starts with listening context rather than statistics.
 
-The bottom navigation is now an opaque full-width utility bar rather than a floating glass capsule. The mini-player sits immediately above it as a flat row. This keeps the two persistent controls visually related without turning the whole app into a stack of floating cards.
+“Continue Listening” is the primary visual object when music exists. This gives a single track a meaningful place in the interface without inventing fake recommendations.
 
-## Content layer
+Recently played and album shelves are horizontally browsable. The complete collection remains dense and information-rich underneath.
 
-Music catalogue content stays visually flat.
+The collection uses artwork, title, artist, album, duration, favourite and removal actions. A row is a functional music object, not a generic data-table row.
 
-Rows use borders and alignment to create grouping. Artwork is square and quiet. Titles get the strongest text weight; artist and album metadata recede. Provenance labels are intentionally small.
+## Discover
+Discover has its own identity because open music is a different activity from managing owned files.
 
-Albums and artists use simple grids instead of decorative cards.
+It is centred on a large search action and a result format that exposes artwork, title, creator, provenance, licence, listen and keep.
+
+The downloadable open tier remains Public Domain and CC0.
+
+## Downloads
+Downloads is treated as a local-files view, not another generic library page.
+
+Its hierarchy begins with the storage concept, then the files actually present in the browser.
 
 ## Player
+The dedicated player follows: artwork → track identity → save/favourite → seek → playback controls → queue.
 
-The player follows a strict hierarchy:
+Shuffle and repeat are secondary controls. Queue is explicit and persistent enough to understand.
 
-1. artwork
-2. track identity
-3. progress
-4. primary playback
-5. shuffle/repeat
-6. queue
-7. source/favourite metadata
+The mini player remains available while browsing, but its role is purely transport and navigation into the full player.
 
-The now-playing surface is opaque. The backdrop is a simple dimming layer, not a blur or material effect.
+## Storage
+Audio bytes live in OPFS.
 
-The mini-player is a functional dock, not a decorative floating object.
+Small metadata lives separately from the audio bytes. The new import path does not run a heavyweight browser tag parser or extract embedded cover art.
 
-## Interaction
+IndexedDB remains only as a compatibility path for older Music For All builds.
 
-The product now has:
-- persistent favourites
-- recent-play markers
-- queue
-- shuffle
-- repeat
-- seek
-- library sorting
-- integrated download/remove actions
-- Media Session controls
+## Interaction principles
+Every interface element should make one of these things easier:
+- find music
+- understand music
+- keep music
+- play music
+- organize music
 
-All persistent state is deliberately small. Audio is never serialized into localStorage or IndexedDB metadata.
+Anything that exists primarily to make the interface look “premium” is suspect.
 
-## Storage architecture
+## Mobile acceptance criteria
+A mobile build is not accepted until:
+- the primary task is understandable without scrolling
+- artwork and track identity have clear hierarchy
+- navigation never obscures the player
+- controls remain comfortably tappable
+- long titles do not break the layout
+- shelves scroll horizontally without causing page-level horizontal overflow
+- the player can be entered and exited without losing playback
+- import does not require IndexedDB for new audio files
+- a failed import leaves the existing library intact
 
-Audio bytes are stored in Origin Private File System (OPFS). Small track metadata, favourites and recent-play markers use localStorage. A legacy IndexedDB reader remains only as a migration/compatibility path for older Music For All builds.
-
-The import path no longer runs a heavyweight browser tag parser. It reads duration through the native audio element and derives a useful title/artist from common filename patterns. This is a stability-first decision: metadata enrichment can be added later as an explicit, user-invoked operation rather than being on the critical import path.
-
-## Reliability principles
-
-- never put audio Blobs into the metadata store
-- never parse album artwork during import
-- import one file at a time
-- do not make service-worker caching a prerequisite for the player
-- keep metadata operations small
-- fail a single import without replacing the existing library
-- revoke temporary playback object URLs
-- expose storage usage where the browser provides it
-
-## Information architecture
-
-**Library** — owned/imported music.
-
-**Discover** — open music and rights-aware search.
-
-**Downloads** — files actually stored offline.
-
-**Settings** — installation, storage and future connectors.
-
-## Rights model
-
-The default downloadable open tier is intentionally strict:
-
-- Public Domain
-- CC0
-
-Other Creative Commons licences can be discoverable later, but they must carry their attribution/use requirements and must not be represented as unrestricted.
-
-## Connected services
-
-Apple Music and Spotify are adapters, not dependencies. A failure in a connected service must never compromise the local library or player.
-
-## Case-study standard
-
-Every feature must answer at least one:
-
-- Does it make music easier to keep?
-- Does it make music easier to understand?
-- Does it make the interface calmer?
-
-If not, it does not belong in v1.
+## Product thesis
+Music For All should feel like a beautiful personal music shelf, not “Spotify but free”.
