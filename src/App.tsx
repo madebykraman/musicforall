@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useRef,useState} from "react";
 import type {ChangeEvent,ReactNode} from "react";
 import type {StoredTrack,Tab,Track} from "./types";
-import {deleteTrack,getBlob,listTracks,saveTrack} from "./lib/db";
+import {getBlob,listTracks,saveTrack} from "./lib/db";
 import {searchOpenMusic} from "./lib/openverse";
 
 type LibraryView="songs"|"albums"|"artists";
