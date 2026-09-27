@@ -36,13 +36,13 @@ Open music is intentionally separate. Search can be broad, while the default kee
 
 ## Research-derived decisions
 
-Doppler demonstrates the value of making a local library first-class: local playback, recently added content, search, queue and album-oriented browsing are core rather than secondary features. citeturn1search4
+Doppler demonstrates the value of making a local library first-class: local playback, recently added content, search, queue and album-oriented browsing are core rather than secondary features.
 
-Marvis demonstrates the usefulness of sections, grouping and sorting for people with substantial libraries, but also shows how configurability can become a product in itself. Music For All therefore exposes only the high-value organization primitives in v1: songs, albums, artists, favourites and sorting. citeturn1search0turn1search1
+Marvis demonstrates the usefulness of sections, grouping and sorting for people with substantial libraries, but also shows how configurability can become a product in itself. Music For All therefore exposes only the high-value organization primitives in v1: songs, albums, artists, favourites and sorting.
 
-Modus's dual-mode concept is useful for the browse/listen transition: browsing should optimize scanning while now playing should become an immersive listening environment. Music For All adopts that principle without copying its visual treatment. citeturn1search3
+Modus's dual-mode concept is useful for the browse/listen transition: browsing should optimize scanning while now playing should become an immersive listening environment. Music For All adopts that principle without copying its visual treatment.
 
-Apple's current guidance emphasizes clear hierarchy and separation between content and navigation. Music For All therefore uses a deliberately custom content identity while keeping navigation simple and predictable. citeturn0search5turn0search15
+Apple's current guidance emphasizes clear hierarchy and separation between content and navigation. Music For All therefore uses a deliberately custom content identity while keeping navigation simple and predictable.
 
 ## Visual language
 
