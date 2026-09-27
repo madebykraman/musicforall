@@ -14,4 +14,4 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - run: npm run build\n      - if: failure()\n        run: |\n          npm run build > build-output.txt 2>&1 || true\n          git config user.name github-actions[bot]\n          git config user.email 41898282+github-actions[bot]@users.noreply.github.com\n          git add build-output.txt\n          git commit -m "diagnostic: capture build output" || true\n          git push
+      - run: npm run build
