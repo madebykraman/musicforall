@@ -96,7 +96,7 @@ function Home({tracks,recent,featured,favorites,play,fav,importFiles,go}:{tracks
 
 function Shelf({title,items,play}:{title:string;items:StoredTrack[];play:(t:Track)=>void}){return <section className="shelf"><div className="section-head"><span>{title.toUpperCase()}</span><b>{items.length}</b></div><div className="shelf-grid">{items.map(t=><button className="shelf-card" key={t.id} onClick={()=>play(t)}><Artwork track={t} size="tile"/><b>{t.title}</b><small>{t.artist}</small></button>)}</div></section>}
 
-function Library({tracks,favorites,sort,setSort,play,remove}:{tracks:StoredTrack[];favorites:Set<string>;sort:Sort;setSort:(s:Sort)=>void;play:(t:Track)=>void;fav:(id:string)=>void;remove:(t:StoredTrack)=>void}){
+function Library({tracks,favorites,sort,setSort,play,remove}:{tracks:StoredTrack[];favorites:Set<string>;sort:Sort;setSort:(s:Sort)=>void;play:(t:Track)=>void;remove:(t:StoredTrack)=>void}){
  const[view,setView]=useState<View>("songs"),[filter,setFilter]=useState<Filter>("all"),[query,setQuery]=useState("");
  const visible=useMemo(()=>{const q=query.trim().toLowerCase();return tracks.filter(t=>(filter==="all"||favorites.has(t.id))&&(!q||[t.title,t.artist,t.album].some(x=>x.toLowerCase().includes(q))))},[tracks,filter,query,favorites]);
  const albums=Array.from(new Map(visible.map(t=>[t.album,t])).values()),artists=Array.from(new Map(visible.map(t=>[t.artist,t])).values());
