@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useRef,useState} from "react";
-import type {ChangeEvent,CSSProperties,ReactNode} from "react";
+import type {ChangeEvent,CSSProperties,ReactNode,RefObject} from "react";
 import type {StoredTrack,Tab,Track} from "./types";
 import {deleteTrack,getBlob,listTracks,saveTrack} from "./lib/db";
 import {searchOpenMusic} from "./lib/openverse";
@@ -257,7 +257,7 @@ export default function App(){
   </div>
 }
 
-function Library({local,total,mode,setMode,query,setQuery,searchRef,play,importFiles}:{local:Track[];total:number;mode:LibraryMode;setMode:(m:LibraryMode)=>void;query:string;setQuery:(q:string)=>void;searchRef:React.RefObject<HTMLInputElement|null>;play:(t:Track)=>void;importFiles:(e:ChangeEvent<HTMLInputElement>)=>void}){
+function Library({local,total,mode,setMode,query,setQuery,searchRef,play,importFiles}:{local:Track[];total:number;mode:LibraryMode;setMode:(m:LibraryMode)=>void;query:string;setQuery:(q:string)=>void;searchRef:RefObject<HTMLInputElement|null>;play:(t:Track)=>void;importFiles:(e:ChangeEvent<HTMLInputElement>)=>void}){
   const albums=Array.from(new Map(local.map(t=>[t.album,t])).values());
   const artists=Array.from(new Map(local.map(t=>[t.artist,t])).values());
   return <section className="page">
