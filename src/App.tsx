@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useRef,useState} from "react";
-import type {ChangeEvent,ReactNode,CSSProperties} from "react";
+import type {ChangeEvent,ReactNode} from "react";
 import type {StoredTrack,Tab,Track} from "./types";
 import {deleteTrack,getBlob,listTracks,saveTrack} from "./lib/db";
 import {searchOpenMusic} from "./lib/openverse";
@@ -42,7 +42,7 @@ function seed(t:Track){return [...(t.title+t.artist+t.album)].reduce((a,c)=>a+c.
 function Artwork({track,size="medium"}:{track:Track;size:"small"|"medium"|"large"|"hero"}){
  const s=seed(track);
  return track.artworkUrl?<img className={"art art-"+size} src={track.artworkUrl} alt=""/>:
- <div className={"art art-"+size+" generated"} style={{"--h":s%360} as CSSProperties}><span>{track.title.trim().slice(0,1).toUpperCase()}</span><i/></div>;
+ <div className={"art art-"+size+" generated generated-"+(s%8)}><span>{track.title.trim().slice(0,1).toUpperCase()}</span><i/></div>;
 }
 function ids(key:string){try{return new Set<string>(JSON.parse(localStorage.getItem(key)||"[]"))}catch{return new Set<string>()}}
 function persist(key:string,set:Set<string>){try{localStorage.setItem(key,JSON.stringify([...set]))}catch{}}
