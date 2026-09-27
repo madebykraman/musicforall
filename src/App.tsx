@@ -10,12 +10,6 @@ const NAV:[Tab,string,string][]=[
   ["library","Library","library"],["discover","Discover","compass"],["downloads","Downloads","download"],["settings","Settings","settings"]
 ];
 
-const DEMO:Track[]=[
-  {id:"demo-1",title:"A room for records",artist:"Music For All",album:"Demo shelf",source:"local"},
-  {id:"demo-2",title:"Nothing to stream",artist:"Music For All",album:"Demo shelf",source:"local"},
-  {id:"demo-3",title:"Keep what you love",artist:"Music For All",album:"Demo shelf",source:"local"}
-];
-
 function Icon({name,size=18}:{name:string;size?:number}){
   const common={width:size,height:size,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"1.8",strokeLinecap:"round" as const,strokeLinejoin:"round" as const,ariaHidden:true};
   const paths:Record<string,ReactNode>={
@@ -75,9 +69,11 @@ export default function App(){
   const[queueOpen,setQueueOpen]=useState(false);
   const[hint,setHint]=useState(false);
   const[status,setStatus]=useState("");
+  const librarySearchRef=useRef<HTMLInputElement|null>(null);
+  const discoverSearchRef=useRef<HTMLInputElement|null>(null);
   const audio=useRef<HTMLAudioElement|null>(null);
   const objectUrl=useRef<string|null>(null);
-  const local=useMemo(()=>tracks.length?tracks:DEMO,[tracks]);
+  const local=tracks;
   const filtered=useMemo(()=>{
     const q=libraryQuery.trim().toLowerCase();
     return q?local.filter(t=>[t.title,t.artist,t.album].some(v=>v.toLowerCase().includes(q))):local;
@@ -87,12 +83,25 @@ export default function App(){
   useEffect(()=>{listTracks().then(setTracks).catch(()=>undefined)},[]);
 
   useEffect(()=>{
+    const onKey=(e:KeyboardEvent)=>{
+      if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){
+        e.preventDefault();
+        if(tab==="discover")discoverSearchRef.current?.focus();
+        else {if(tab!=="library")setTab("library");window.setTimeout(()=>librarySearchRef.current?.focus(),0)}
+      }
+    };
+    window.addEventListener("keydown",onKey);
+    return()=>window.removeEventListener("keydown",onKey);
+  },[tab]);
+
+  useEffect(()=>{
     if(!selected||!("mediaSession" in navigator))return;
     const media=navigator.mediaSession;
     media.metadata=new MediaMetadata({title:selected.title,artist:selected.artist,album:selected.album,artwork:selected.artworkUrl?[{src:selected.artworkUrl}]:[]});
     for(const [action,fn] of [["play",toggle],["pause",toggle],["previoustrack",()=>step(-1)],["nexttrack",()=>step(1)]] as const){
       try{media.setActionHandler(action,fn)}catch{undefined}
     }
+    return()=>{for(const action of ["play","pause","previoustrack","nexttrack"] as MediaSessionAction[]){try{media.setActionHandler(action,null)}catch{undefined}}};
   },[selected,playing,queue]);
 
   useEffect(()=>{
@@ -181,9 +190,9 @@ export default function App(){
   }
 
   const page=tab==="library"
-    ? <Library local={filtered} total={local.length} mode={libraryMode} setMode={setLibraryMode} query={libraryQuery} setQuery={setLibraryQuery} play={play} importFiles={importFiles}/>
+    ? <Library local={filtered} total={local.length} mode={libraryMode} setMode={setLibraryMode} query={libraryQuery} setQuery={setLibraryQuery} searchRef={librarySearchRef} play={play} importFiles={importFiles}/>
     : tab==="discover"
-      ? <Discover query={query} setQuery={setQuery} search={search} searching={searching} results={openTracks} play={play} download={download}/>
+      ? <Discover query={query} setQuery={setQuery} search={search} searching={searching} results={openTracks} play={play} download={download} searchRef={discoverSearchRef}/>
       : tab==="downloads"
         ? <Downloads tracks={tracks} play={play} remove={remove}/>
         : <Settings show={()=>setHint(true)}/>;
@@ -198,9 +207,10 @@ export default function App(){
     </aside>
     <header className="topbar">
       <div className="mobile-brand"><span className="brand-mark">m</span>music for all</div>
-      <div className="topbar-right"><button className="top-search" onClick={()=>setTab(tab==="library"?"library":tab)}><Icon name="search" size={17}/><span>{tab==="library"?"Search your library":"Search"}</span><kbd>⌘ K</kbd></button><button className="avatar">A</button></div>
+      <div className="topbar-right"><button className="top-search" onClick={()=>{if(tab==="discover")discoverSearchRef.current?.focus();else{if(tab!=="library")setTab("library");window.setTimeout(()=>librarySearchRef.current?.focus(),0)}}}><Icon name="search" size={17}/><span>{tab==="library"?"Search your library":"Search"}</span><kbd>⌘ K</kbd></button></div>
     </header>
     <main>{page}</main>
+    <nav className="mobile-nav" aria-label="Primary">{NAV.map(([id,label,icon])=><button key={id} className={tab===id?"active":""} onClick={()=>setTab(id)}><Icon name={icon} size={17}/><span>{label}</span></button>)}</nav>
 
     {status&&<button className="status-toast" onClick={()=>setStatus("")}>{status}<Icon name="close" size={15}/></button>}
 
@@ -216,12 +226,12 @@ export default function App(){
   </div>
 }
 
-function Library({local,total,mode,setMode,query,setQuery,play,importFiles}:{local:Track[];total:number;mode:LibraryMode;setMode:(m:LibraryMode)=>void;query:string;setQuery:(q:string)=>void;play:(t:Track)=>void;importFiles:(e:ChangeEvent<HTMLInputElement>)=>void}){
+function Library({local,total,mode,setMode,query,setQuery,searchRef,play,importFiles}:{local:Track[];total:number;mode:LibraryMode;setMode:(m:LibraryMode)=>void;query:string;setQuery:(q:string)=>void;searchRef:React.RefObject<HTMLInputElement|null>;play:(t:Track)=>void;importFiles:(e:ChangeEvent<HTMLInputElement>)=>void}){
   const albums=Array.from(new Map(local.map(t=>[t.album,t])).values());
   const artists=Array.from(new Map(local.map(t=>[t.artist,t])).values());
   return <section className="page">
     <div className="page-head"><div><div className="eyebrow">YOUR COLLECTION</div><h1>Library</h1></div><label className="primary import">Import music<input hidden type="file" multiple accept="audio/*,.flac,.m4a,.mp3,.wav,.aiff" onChange={importFiles}/></label></div>
-    <div className="library-tools"><div className="segmented">{(["songs","albums","artists"] as LibraryMode[]).map(m=><button key={m} className={mode===m?"active":""} onClick={()=>setMode(m)}>{m[0].toUpperCase()+m.slice(1)}</button>)}</div><label className="library-search"><Icon name="search" size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search library"/></label></div>
+    <div className="library-tools"><div className="segmented">{(["songs","albums","artists"] as LibraryMode[]).map(m=><button key={m} className={mode===m?"active":""} onClick={()=>setMode(m)}>{m[0].toUpperCase()+m.slice(1)}</button>)}</div><label className="library-search"><Icon name="search" size={16}/><input ref={searchRef} value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search library"/></label></div>
     {mode==="songs"&&<SongView tracks={local} play={play}/>}
     {mode==="albums"&&<CardGrid items={albums} type="album" play={play}/>}
     {mode==="artists"&&<CardGrid items={artists} type="artist" play={play}/>}
@@ -238,8 +248,8 @@ function CardGrid({items,type,play}:{items:Track[];type:"album"|"artist";play:(t
   return <div className={type==="artist"?"card-grid artist-grid":"card-grid"}>{items.map(t=><button className="media-card" key={type==="album"?t.album:t.artist} onClick={()=>play(t)}><Artwork track={t} size="card"/><b>{type==="album"?t.album:t.artist}</b><span>{type==="album"?t.artist:"Artist"}</span></button>)}</div>
 }
 
-function Discover({query,setQuery,search,searching,results,play,download}:{query:string;setQuery:(s:string)=>void;search:()=>void;searching:boolean;results:Track[];play:(t:Track)=>void;download:(t:Track)=>void}){
-  return <section className="page"><div className="eyebrow">OPEN CATALOGUE</div><h1>Discover music you can keep.</h1><p className="lede">A narrow, rights-aware doorway into public-domain and CC0 audio.</p><div className="discover-search"><Icon name="search"/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&search()} placeholder="Try “piano”, “rain”, “Debussy”…"/><button onClick={search}>{searching?"Searching":"Search"}</button></div><div className="rights">Downloads are restricted to Public Domain and CC0. Open licences still need to be checked per work. <a href="https://docs.openverse.org/" target="_blank" rel="noreferrer">Rights model ↗</a></div><div className="song-list discover-list">{results.map((t,i)=><button className="song-row" key={t.id} onClick={()=>play(t)}><span className="song-index">{String(i+1).padStart(2,"0")}</span><span className="song-title"><Artwork track={t}/><span><b>{t.title}</b><small>{t.artist}</small></span></span><span className="song-album">{t.provider||"Open music"}</span><span className="song-source">{t.license==="cc0"?"CC0":"PDM"}</span><span className="row-download" onClick={e=>{e.stopPropagation();download(t)}}>↓</span></button>)}</div>{!results.length&&<div className="quiet-state">Search the open catalogue. Results will appear here without changing your library.</div>}</section>
+function Discover({query,setQuery,search,searching,results,play,download,searchRef}:{query:string;setQuery:(s:string)=>void;search:()=>void;searching:boolean;results:Track[];play:(t:Track)=>void;download:(t:Track)=>void;searchRef:React.RefObject<HTMLInputElement|null>}){
+  return <section className="page"><div className="eyebrow">OPEN CATALOGUE</div><h1>Discover music you can keep.</h1><p className="lede">A narrow, rights-aware doorway into public-domain and CC0 audio.</p><div className="discover-search"><Icon name="search"/><input ref={searchRef} value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&search()} placeholder="Try “piano”, “rain”, “Debussy”…"/><button onClick={search}>{searching?"Searching":"Search"}</button></div><div className="rights">Downloads are restricted to Public Domain and CC0. Open licences still need to be checked per work. <a href="https://docs.openverse.org/" target="_blank" rel="noreferrer">Rights model ↗</a></div><div className="song-list discover-list">{results.map((t,i)=><button className="song-row" key={t.id} onClick={()=>play(t)}><span className="song-index">{String(i+1).padStart(2,"0")}</span><span className="song-title"><Artwork track={t}/><span><b>{t.title}</b><small>{t.artist}</small></span></span><span className="song-album">{t.provider||"Open music"}</span><span className="song-source">{t.license==="cc0"?"CC0":"PDM"}</span><span className="row-download" onClick={e=>{e.stopPropagation();download(t)}}>↓</span></button>)}</div>{!results.length&&<div className="quiet-state">Search the open catalogue. Results will appear here without changing your library.</div>}</section>
 }
 
 function Downloads({tracks,play,remove}:{tracks:StoredTrack[];play:(t:Track)=>void;remove:(t:StoredTrack)=>void}){
