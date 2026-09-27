@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useRef,useState} from "react";
-import type {ChangeEvent,ReactNode,RefObject} from "react";
+import type {ChangeEvent,CSSProperties,ReactNode} from "react";
 import type {StoredTrack,Tab,Track} from "./types";
 import {deleteTrack,getBlob,listTracks,saveTrack} from "./lib/db";
 import {searchOpenMusic} from "./lib/openverse";
@@ -38,7 +38,7 @@ function Icon({name,size=18}:{name:string;size?:number}){
 
 function time(s?:number){if(!Number.isFinite(s)||!s)return "—";const n=Math.floor(s);return Math.floor(n/60)+":"+String(n%60).padStart(2,"0")}
 function artworkKey(t:Track){return [...t.title+t.artist].reduce((a,c)=>a+c.charCodeAt(0),0)}
-function Artwork({track,size="row"}:{track:Track;size:"row"|"tile"|"hero"|"player"}){const seed=artworkKey(track);return track.artworkUrl?<img className={"art "+size} src={track.artworkUrl} alt=""/>:<div className={"art "+size+" generated"} style={{"--hue":seed%360} as React.CSSProperties}><span>{track.title.trim().slice(0,1).toUpperCase()}</span><i/></div>}
+function Artwork({track,size="row"}:{track:Track;size:"row"|"tile"|"hero"|"player"}){const seed=artworkKey(track);return track.artworkUrl?<img className={"art "+size} src={track.artworkUrl} alt=""/>:<div className={"art "+size+" generated"} style={{"--hue":seed%360} as CSSProperties}><span>{track.title.trim().slice(0,1).toUpperCase()}</span><i/></div>}
 function ids(key:string){try{return new Set<string>(JSON.parse(localStorage.getItem(key)||"[]"))}catch{return new Set<string>()}}
 function persist(key:string,set:Set<string>){try{localStorage.setItem(key,JSON.stringify([...set]))}catch{}}
 function markRecent(id:string){try{const old=JSON.parse(localStorage.getItem("mfa:recent")||"[]") as string[];localStorage.setItem("mfa:recent",JSON.stringify([id,...old.filter(x=>x!==id)].slice(0,30)))}catch{}}
