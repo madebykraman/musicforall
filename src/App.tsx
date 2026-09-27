@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useRef,useState} from "react";
-import type {ChangeEvent,ReactNode} from "react";
+import type {ChangeEvent,ReactNode,CSSProperties} from "react";
 import type {StoredTrack,Tab,Track} from "./types";
 import {deleteTrack,getBlob,listTracks,saveTrack} from "./lib/db";
 import {searchOpenMusic} from "./lib/openverse";
@@ -42,7 +42,7 @@ function seed(t:Track){return [...(t.title+t.artist+t.album)].reduce((a,c)=>a+c.
 function Artwork({track,size="medium"}:{track:Track;size:"small"|"medium"|"large"|"hero"}){
  const s=seed(track);
  return track.artworkUrl?<img className={"art art-"+size} src={track.artworkUrl} alt=""/>:
- <div className={"art art-"+size+" generated"} style={{"--h":s%360} as React.CSSProperties}><span>{track.title.trim().slice(0,1).toUpperCase()}</span><i/></div>;
+ <div className={"art art-"+size+" generated"} style={{"--h":s%360} as CSSProperties}><span>{track.title.trim().slice(0,1).toUpperCase()}</span><i/></div>;
 }
 function ids(key:string){try{return new Set<string>(JSON.parse(localStorage.getItem(key)||"[]"))}catch{return new Set<string>()}}
 function persist(key:string,set:Set<string>){try{localStorage.setItem(key,JSON.stringify([...set]))}catch{}}
@@ -56,9 +56,10 @@ export default function App(){
 
  useEffect(()=>{listTracks().then(found=>{setTracks(found);if(!found.length){try{setOnboard(localStorage.getItem("mfa:onboarded")!=="1")}catch{setOnboard(true)}}}).catch(()=>setStatus("Your library could not be opened."))},[]);
  useEffect(()=>()=>{audio.current.pause();if(objectUrl.current)URL.revokeObjectURL(objectUrl.current)},[]);
- useEffect(()=>{const a=audio.current;a.ontimeupdate=()=>setProgress(a.currentTime);a.onloadedmetadata=()=>setProgress(a.currentTime);a.onended=()=>advance(1);return()=>{a.ontimeupdate=null;a.onended=null}},[selected,shuffle,repeat]);
- useEffect(()=>{if(!selected||typeof navigator==="undefined"||!("mediaSession" in navigator))return;const m=navigator.mediaSession;m.metadata=new MediaMetadata({title:selected.title,artist:selected.artist||"Local file",album:selected.album||"Music For All",artwork:selected.artworkUrl?[{src:selected.artworkUrl}]:[]});m.setActionHandler("play",()=>toggle());m.setActionHandler("pause",()=>toggle());m.setActionHandler("seekbackward",()=>seek(Math.max(0,audio.current.currentTime-10)));m.setActionHandler("seekforward",()=>seek(audio.current.currentTime+10));m.setActionHandler("previoustrack",()=>advance(-1));m.setActionHandler("nexttrack",()=>advance(1));},[selected]);
+ useEffect(()=>{const a=audio.current;a.ontimeupdate=()=>setProgress(a.currentTime);a.onloadedmetadata=()=>setProgress(a.currentTime);a.onended=()=>{if(repeat&&selected)void play(selected);else advance(1)};return()=>{a.ontimeupdate=null;a.onended=null}},[selected,shuffle,repeat]);
+ useEffect(()=>{if(!selected||typeof navigator==="undefined"||!("mediaSession" in navigator))return;const m=navigator.mediaSession;m.metadata=new MediaMetadata({title:selected.title,artist:selected.artist||"Local file",album:selected.album||"Music For All",artwork:selected.artworkUrl?[{src:selected.artworkUrl}]:[]});const handlers:Record<string,()=>void>={play:()=>toggle(),pause:()=>toggle(),seekbackward:()=>seek(Math.max(0,audio.current.currentTime-10)),seekforward:()=>seek(audio.current.currentTime+10),previoustrack:()=>advance(-1),nexttrack:()=>advance(1)};for(const [action,handler] of Object.entries(handlers)){try{m.setActionHandler(action as MediaSessionAction,handler)}catch{}}return()=>{for(const action of Object.keys(handlers)){try{m.setActionHandler(action as MediaSessionAction,null)}catch{}}};},[selected]);
  useEffect(()=>{if("mediaSession" in navigator)navigator.mediaSession.playbackState=playing?"playing":"paused"},[playing]);
+ useEffect(()=>{if(!status)return;const timer=window.setTimeout(()=>setStatus(""),2600);return()=>window.clearTimeout(timer)},[status]);
 
  const sorted=useMemo(()=>[...tracks].sort((a,b)=>b.addedAt-a.addedAt),[tracks]);
  const recentTracks=useMemo(()=>recent.map(id=>tracks.find(t=>t.id===id)).filter(Boolean) as StoredTrack[],[recent,tracks]);
@@ -144,7 +145,7 @@ function SongList({tracks,favorites,fav,play}:{tracks:StoredTrack[];favorites:Se
 function Explore({query,setQuery,search,searching,results,play,download}:{query:string;setQuery:(s:string)=>void;search:()=>void;searching:boolean;results:Track[];play:(t:Track)=>void;download:(t:Track)=>void}){
  return <section className="explore-page">
   <div className="explore-head"><span className="kicker">OPEN MUSIC</span><h1>Find something<br/><i>worth hearing.</i></h1><p>Search a small, rights-aware catalogue. Keep only music marked Public Domain or CC0.</p></div>
-  <div className="big-search"><Icon name="search" size={25}/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&search()} placeholder="Search sounds, instruments, recordings…"/><button onClick={search}>{searching?"…":"Search"}</button></div>
+  <div className="big-search"><Icon name="search" size={25}/><input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&search()} placeholder="Search sounds, instruments, recordings…"/><button onClick={search}>{searching?"…":"Search"}</button></div>
   {results.length?<div className="open-results">{results.map(t=><article key={t.id}><Artwork track={t} size="medium"/><div><span className="license">{t.license==="cc0"?"CC0":"PUBLIC DOMAIN"} · {t.provider||"OPEN"}</span><h2>{t.title}</h2><p>{t.artist}</p><small>{t.album}</small></div><div className="result-actions"><button onClick={()=>play(t)}><Icon name="play" size={16}/>Listen</button><button onClick={()=>download(t)}><Icon name="plus" size={16}/>Keep</button></div></article>)}</div>:<div className="explore-empty"><span>OPEN SHELF</span><h2>Search when you want<br/>something outside your library.</h2></div>}
  </section>
 }
