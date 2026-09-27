@@ -53,9 +53,12 @@ function readDuration(file:File){
   return new Promise<number|undefined>(resolve=>{
     const url=URL.createObjectURL(file);
     const audio=document.createElement("audio");
+    let settled=false;
+    const finish=(duration?:number)=>{if(settled)return;settled=true;window.clearTimeout(timeout);audio.removeAttribute("src");audio.load();URL.revokeObjectURL(url);resolve(duration)};
+    const timeout=window.setTimeout(()=>finish(undefined),8000);
     audio.preload="metadata";
-    audio.onloadedmetadata=()=>{const duration=Number.isFinite(audio.duration)?audio.duration:undefined;URL.revokeObjectURL(url);resolve(duration)};
-    audio.onerror=()=>{URL.revokeObjectURL(url);resolve(undefined)};
+    audio.onloadedmetadata=()=>finish(Number.isFinite(audio.duration)?audio.duration:undefined);
+    audio.onerror=()=>finish(undefined);
     audio.src=url;
   });
 }
