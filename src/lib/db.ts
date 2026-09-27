@@ -98,7 +98,7 @@ export async function saveTrack(track:StoredTrack,blob:Blob){
 
 export async function listTracks(){
   const local=readMeta();
-  if(localStorage.getItem(META_KEY)!==null)return local.sort((a,b)=>b.addedAt-a.addedAt);
+  try{if(localStorage.getItem(META_KEY)!==null)return local.sort((a,b)=>b.addedAt-a.addedAt)}catch{undefined}
   return (await migrateLegacyMetadata()).sort((a,b)=>b.addedAt-a.addedAt);
 }
 
