@@ -66,8 +66,8 @@ export default function App(){
   </header>
   <input ref={input} hidden type="file" accept="audio/*" multiple onChange={importFiles}/>
   <main>
-   {tab==="home"&&<Home tracks={tracks} recent={recentTracks} favorites={favoriteTracks} selected={selected} playing={playing} play={play} toggle={toggle} fav={fav} importMusic={()=>input.current?.click()} explore={()=>nav("explore")} nav={nav}/>}
-   {tab==="library"&&<Library tracks={filtered} allTracks={tracks} favorites={favoriteTracks} selected={selected} playing={playing} query={query} setQuery={setQuery} play={play} toggle={toggle} fav={fav} favorites={favorites} importMusic={()=>input.current?.click()}/>}
+   {tab==="home"&&<Home tracks={tracks} recent={recentTracks} favorites={favoriteTracks} selected={selected} playing={playing} play={play} toggle={toggle} importMusic={()=>input.current?.click()} explore={()=>nav("explore")} nav={nav}/>}
+   {tab==="library"&&<Library tracks={filtered} allTracks={tracks} selected={selected} playing={playing} query={query} setQuery={setQuery} toggle={toggle} fav={fav} favorites={favorites} importMusic={()=>input.current?.click()}/>}
    {tab==="explore"&&<Explore query={openQuery} setQuery={setOpenQuery} search={searchOpen} results={results} busy={busy} keep={keep}/>}
    {tab==="settings"&&<Settings tracks={tracks} importMusic={()=>input.current?.click()}/>}
   </main>
@@ -88,7 +88,7 @@ function Section({title,action,children}:{title:string;action?:string;children:R
 
 function Cards({tracks,play}:{tracks:StoredTrack[];play:(t:StoredTrack)=>void}){return <div className="rail">{tracks.map(t=><button className="music-card" key={t.id} onClick={()=>play(t)}><Art t={t}/><b>{t.title}</b><small>{t.artist}</small></button>)}</div>}
 
-function Home({tracks,recent,favorites,selected,playing,play,toggle,fav,importMusic,explore,nav}:{tracks:StoredTrack[];recent:StoredTrack[];favorites:StoredTrack[];selected:StoredTrack|null;playing:boolean;play:(t:StoredTrack)=>void;toggle:()=>void;fav:(id:string)=>void;importMusic:()=>void;explore:()=>void;nav:(t:Tab)=>void}){
+function Home({tracks,recent,favorites,selected,playing,play,toggle,importMusic,explore,nav}:{tracks:StoredTrack[];recent:StoredTrack[];favorites:StoredTrack[];selected:StoredTrack|null;playing:boolean;play:(t:StoredTrack)=>void;toggle:()=>void;importMusic:()=>void;explore:()=>void;nav:(t:Tab)=>void}){
  const albums=useMemo(()=>{const seen=new Set<string>();return tracks.filter(t=>{const k=(t.album||"Local music")+"|"+(t.artist||"");if(seen.has(k))return false;seen.add(k);return true}).slice(0,12)},[tracks]);
  const artists=useMemo(()=>{const seen=new Set<string>();return tracks.filter(t=>{const k=t.artist||"Unknown artist";if(seen.has(k))return false;seen.add(k);return true}).slice(0,12)},[tracks]);
  return <section className="home">
@@ -103,7 +103,7 @@ function Home({tracks,recent,favorites,selected,playing,play,toggle,fav,importMu
  </section>
 }
 
-function Library({tracks,allTracks,favorites,selected,playing,query,setQuery,play,toggle,fav,favorites:favIds,importMusic}:{tracks:StoredTrack[];allTracks:StoredTrack[];favorites:StoredTrack[];selected:StoredTrack|null;playing:boolean;query:string;setQuery:(s:string)=>void;play:(t:StoredTrack)=>void;toggle:()=>void;fav:(id:string)=>void;favorites:string[];importMusic:()=>void}){
+function Library({tracks,allTracks,selected,playing,query,setQuery,toggle,fav,favorites:favIds,importMusic}:{tracks:StoredTrack[];allTracks:StoredTrack[];selected:StoredTrack|null;playing:boolean;query:string;setQuery:(s:string)=>void;toggle:()=>void;fav:(id:string)=>void;favorites:string[];importMusic:()=>void}){
  const [view,setView]=useState<"songs"|"albums"|"artists">("songs");
  const albums=useMemo(()=>{const seen=new Set<string>();return allTracks.filter(t=>{const k=(t.album||"Local music")+"|"+(t.artist||"");if(seen.has(k))return false;seen.add(k);return true})},[allTracks]);
  const artists=useMemo(()=>{const seen=new Set<string>();return allTracks.filter(t=>{const k=t.artist||"Unknown artist";if(seen.has(k))return false;seen.add(k);return true})},[allTracks]);
