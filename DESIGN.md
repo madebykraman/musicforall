@@ -1,118 +1,183 @@
-# Music For All — Design System
+# Music For All — Product & Interface
 
-## Design reset
-The original interface was a library/table layout wrapped in increasingly decorative surfaces. That direction is retired.
+## Reset
 
-The current product is designed as a personal listening workspace.
+This version intentionally does not preserve the previous Music For All interface.
 
-The core screen is not a settings dashboard and not a streaming-service clone. It is a shelf for music: one featured listening state, browsable shelves, then the complete collection.
+The earlier prototype treated the product as a four-tab dashboard: Library, Discover, Downloads and Settings. That made the first screen feel like a utility console and forced storage implementation details into the primary navigation.
 
-## Composition
+The new product model is:
 
-### Desktop
-The application has three persistent structural zones:
-1. top utility bar — identity, global search and local-storage status
-2. narrow navigation rail — Library, Discover, Downloads and Settings
-3. content workspace — each destination has its own composition
+**Home** — the personal listening room and first-run destination.
 
-The Library workspace is ordered:
-- library identity and import action
-- Continue Listening feature
-- Recently Played shelf
-- Albums shelf
-- complete collection
+**Collection** — everything the user has kept, with songs/albums/artists and favourites.
 
-The player is promoted into a dedicated full-screen listening surface rather than being permanently treated as a modal card.
+**Explore** — the rights-aware open catalogue.
 
-### Mobile
-Mobile is not a scaled-down desktop table.
+**Settings** — storage, installation and product information.
 
-The composition becomes:
-- compact header
-- listening feature
-- horizontally scrolling music shelves
-- compact collection rows
-- persistent opaque player dock
-- persistent four-item navigation
-
-The player dock is a utility, not a decorative floating material.
-
-## Visual language
-The product uses a warm editorial palette:
-- warm paper background
-- darker paper surfaces
-- near-black typography
-- thin structural rules
-- one restrained burnt accent
-- album artwork as the main source of colour
-
-There is deliberately no Liquid Glass.
-
-No backdrop-filter.
-No translucent navigation.
-No ambient blur.
-No floating glass capsules.
-No decorative equalizers.
-No permanent dark streaming-app chrome.
-
-The interface should look closer to a well-designed music archive or physical record catalogue than a generic SaaS dashboard.
-
-## Library
-The library starts with listening context rather than statistics.
-
-“Continue Listening” is the primary visual object when music exists. This gives a single track a meaningful place in the interface without inventing fake recommendations.
-
-Recently played and album shelves are horizontally browsable. The complete collection remains dense and information-rich underneath.
-
-The collection uses artwork, title, artist, album, duration, favourite and removal actions. A row is a functional music object, not a generic data-table row.
-
-## Discover
-Discover has its own identity because open music is a different activity from managing owned files.
-
-It is centred on a large search action and a result format that exposes artwork, title, creator, provenance, licence, listen and keep.
-
-The downloadable open tier remains Public Domain and CC0.
-
-## Downloads
-Downloads is treated as a local-files view, not another generic library page.
-
-Its hierarchy begins with the storage concept, then the files actually present in the browser.
-
-## Player
-The dedicated player follows: artwork → track identity → save/favourite → seek → playback controls → queue.
-
-Shuffle and repeat are secondary controls. Queue is explicit and persistent enough to understand.
-
-The mini player remains available while browsing, but its role is purely transport and navigation into the full player.
-
-## Storage
-Audio bytes live in OPFS.
-
-Small metadata lives separately from the audio bytes. The new import path does not run a heavyweight browser tag parser or extract embedded cover art.
-
-IndexedDB remains only as a compatibility path for older Music For All builds.
-
-## Interaction principles
-Every interface element should make one of these things easier:
-- find music
-- understand music
-- keep music
-- play music
-- organize music
-
-Anything that exists primarily to make the interface look “premium” is suspect.
-
-## Mobile acceptance criteria
-A mobile build is not accepted until:
-- the primary task is understandable without scrolling
-- artwork and track identity have clear hierarchy
-- navigation never obscures the player
-- controls remain comfortably tappable
-- long titles do not break the layout
-- shelves scroll horizontally without causing page-level horizontal overflow
-- the player can be entered and exited without losing playback
-- import does not require IndexedDB for new audio files
-- a failed import leaves the existing library intact
+Offline storage is a property of the collection, not a destination.
 
 ## Product thesis
-Music For All should feel like a beautiful personal music shelf, not “Spotify but free”.
+
+Music For All is a private music shelf for files a person already has.
+
+The product should feel closer to opening a carefully kept record collection than opening a streaming service.
+
+There is:
+- no social feed
+- no recommendation wall
+- no account requirement
+- no fake catalogue
+- no algorithmic home feed
+- no attempt to disguise local files as a streaming service
+
+Open music is intentionally separate. Search can be broad, while the default keepable tier remains Public Domain and CC0.
+
+## Research-derived decisions
+
+Doppler demonstrates the value of making a local library first-class: local playback, recently added content, search, queue and album-oriented browsing are core rather than secondary features. citeturn1search4
+
+Marvis demonstrates the usefulness of sections, grouping and sorting for people with substantial libraries, but also shows how configurability can become a product in itself. Music For All therefore exposes only the high-value organization primitives in v1: songs, albums, artists, favourites and sorting. citeturn1search0turn1search1
+
+Modus's dual-mode concept is useful for the browse/listen transition: browsing should optimize scanning while now playing should become an immersive listening environment. Music For All adopts that principle without copying its visual treatment. citeturn1search3
+
+Apple's current guidance emphasizes clear hierarchy and separation between content and navigation. Music For All therefore uses a deliberately custom content identity while keeping navigation simple and predictable. citeturn0search5turn0search15
+
+## Visual language
+
+The new visual system is an editorial archive rather than a generic “music app” dashboard.
+
+Palette:
+- warm paper background
+- midnight navy listening environment
+- electric blue as the primary interaction accent
+- restrained coral for saved/favourite states
+- charcoal typography
+- thin structural rules
+
+Typography:
+- system sans for controls, metadata and utility
+- serif display typography for major editorial statements and listening identity
+
+Composition:
+- large typographic statements
+- asymmetrical editorial grids
+- album artwork as content, not decoration
+- thin rules instead of containers everywhere
+- deliberate empty space
+- numbered sections as an archival motif
+
+There is no Liquid Glass, glassmorphism, backdrop blur, frosted navigation, translucent player, or floating capsule system.
+
+## First-run experience
+
+The first visit is an onboarding experience, not an empty library.
+
+The onboarding explains three things:
+1. Local first — imported audio stays on the device.
+2. Open when useful — Public Domain and CC0 audio can be discovered separately.
+3. No account — the core product requires no login.
+
+The primary action is immediately importing music. A secondary action lets the person look around without importing anything.
+
+Once music exists, onboarding disappears and Home becomes the listening room.
+
+## Home
+
+Home answers one question: “What can I listen to right now?”
+
+Its hierarchy is:
+1. product statement
+2. continue listening
+3. recently added
+4. albums
+5. import fallback when empty
+
+This avoids the previous dashboard feeling. The screen is editorial and content-led.
+
+## Collection
+
+Collection answers: “What do I own here?”
+
+The collection supports:
+- all music
+- favourites
+- songs
+- albums
+- artists
+- recently added/title/artist sorting
+- local search
+- direct playback
+- direct favourite/remove actions
+
+The row is intentionally dense. Album art, title and artist carry most of the information. Secondary metadata recedes.
+
+## Explore
+
+Explore answers: “What can I discover and legally keep?”
+
+It makes the rights boundary explicit before the search results.
+
+The UI distinguishes:
+- Listen
+- Keep
+
+Searching does not mutate the local collection.
+
+## Player
+
+Now Playing is a different visual world.
+
+Browse uses warm paper and blue accents. The player uses midnight navy and high-contrast artwork.
+
+The player hierarchy is:
+1. artwork
+2. title
+3. artist / album
+4. progress
+5. playback
+6. shuffle / repeat
+7. queue
+
+This is a listening environment, not another catalogue page.
+
+## Persistent mini-player
+
+The mini-player is a utility bridge between browse and listening. It does not become a floating design object.
+
+It exposes:
+- artwork
+- title
+- artist
+- play/pause
+- queue
+- progress
+
+The full player remains one tap away.
+
+## Storage
+
+Audio bytes live in OPFS. Small metadata lives separately. IndexedDB is retained only for compatibility with older builds.
+
+The import path is sequential and deliberately lightweight:
+- native duration probing
+- filename-derived metadata
+- one file written at a time
+- no embedded artwork extraction during import
+- cleanup on failed writes
+
+The storage architecture is not allowed to dictate the product's visual hierarchy.
+
+## Non-goals
+
+For this version:
+- no social features
+- no recommendation engine
+- no account system
+- no streaming-service imitation
+- no decorative audio visualizers
+- no settings maze
+- no dashboard cards for the sake of having cards
+
+The product earns complexity only when it makes keeping, finding or listening to music materially better.
