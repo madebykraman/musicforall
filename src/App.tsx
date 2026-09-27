@@ -67,8 +67,8 @@ export default function App(){
 
   useEffect(()=>{
     if(!selected)return;
+    if(!("mediaSession" in navigator))return;
     const media=navigator.mediaSession;
-    if(!media)return;
     media.metadata=new MediaMetadata({
       title:selected.title,
       artist:selected.artist,
@@ -118,8 +118,9 @@ export default function App(){
       if(Number.isFinite(a.duration)&&a.duration>0&&track.duration!==a.duration){
         setSelected(prev=>prev&&prev.id===track.id?{...prev,duration:a.duration}:prev);
       }
-      if("setPositionState" in navigator.mediaSession&&Number.isFinite(a.duration)&&a.duration>0){
-        try{navigator.mediaSession.setPositionState({duration:a.duration,playbackRate:a.playbackRate,position:Math.min(a.currentTime,a.duration)})}catch{undefined}
+      const media=navigator.mediaSession;
+      if(media&&"setPositionState" in media&&Number.isFinite(a.duration)&&a.duration>0){
+        try{media.setPositionState({duration:a.duration,playbackRate:a.playbackRate,position:Math.min(a.currentTime,a.duration)})}catch{undefined}
       }
     };
     a.onended=()=>{setPlaying(false);step(1)};
