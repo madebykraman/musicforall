@@ -14,4 +14,4 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - run: npm run build\n      - if: failure()\n        env:\n          GH_TOKEN: ${{ github.token }}\n        run: |\n          npm run build > build-output.txt 2>&1 || true\n          gh issue create --title "BUILD DIAGNOSTIC ${{ github.sha }}" --body "$(cat build-output.txt)"
+      - run: npm run build
