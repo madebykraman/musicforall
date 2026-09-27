@@ -1,0 +1,1 @@
+{"name":"Music For All","short_name":"Music","description":"A local-first music shelf for music you own and music you can legally keep.","start_url":"./","scope":"./","display":"standalone","background_color":"#f4f0e8","theme_color":"#f4f0e8","icons":[{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
