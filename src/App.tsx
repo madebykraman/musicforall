@@ -70,7 +70,7 @@ export default function App(){
  return <div className="product">
   <header className="masthead"><button className="brand" onClick={()=>go("home")}><span className="brand-mark">m</span><span>music for all</span></button><div className="masthead-center"><span className="status-dot"/><span>LOCAL / PRIVATE</span></div><button className="header-search" onClick={()=>go(tab==="explore"?"explore":"library")}><Icon name="search" size={18}/><span>Search</span></button></header>
   <aside className="desktop-nav"><span className="nav-caption">NAVIGATE</span>{NAV.map(([id,label,icon])=><button key={id} className={tab===id?"nav-link active":"nav-link"} onClick={()=>go(id)}><Icon name={icon} size={17}/><span>{label}</span></button>)}<div className="nav-note"><b>LOCAL FIRST</b><span>Your files stay on this device.</span></div></aside>
-  <main>{tab==="home"&&<Home tracks={sorted} recent={recentTracks} featured={featured} play={play} fav={fav} importFiles={importFiles} go={go}/>}
+  <main>{tab==="home"&&<Home tracks={sorted} recent={recentTracks} featured={featured} play={play} importFiles={importFiles} go={go}/>}
   {tab==="library"&&<Library tracks={sorted} favorites={favorites} sort={sort} setSort={setSort} play={play} remove={remove}/>}
   {tab==="explore"&&<Explore query={search} setQuery={setSearch} search={()=>searchOpen(search)} searching={searching} results={open} play={play} download={download}/>}
   {tab==="settings"&&<Settings tracks={tracks} go={go} onboard={()=>setOnboard(true)}/>}</main>
@@ -83,7 +83,7 @@ export default function App(){
  </div>
 }
 
-function Home({tracks,recent,featured,play,fav,importFiles,go}:{tracks:StoredTrack[];recent:StoredTrack[];featured?:StoredTrack;play:(t:Track)=>void;fav:(id:string)=>void;importFiles:(e:ChangeEvent<HTMLInputElement>)=>void;go:(t:Tab)=>void}){
+function Home({tracks,recent,featured,play,fav,importFiles,go}:{tracks:StoredTrack[];recent:StoredTrack[];featured?:StoredTrack;play:(t:Track)=>void;importFiles:(e:ChangeEvent<HTMLInputElement>)=>void;go:(t:Tab)=>void}){
  const albums=Array.from(new Map(tracks.map(t=>[t.album,t])).values()).slice(0,6);
  return <section className="home-page">
   <div className="home-hero"><div className="hero-copy"><span className="eyebrow">A PRIVATE MUSIC SHELF</span><h1>Keep your music<br/><em>close.</em></h1><p>Your own files, stored here on this device. No account. No feed. No algorithm between you and what you brought with you.</p><div className="hero-actions"><label className="button-primary">Bring music in<input hidden type="file" multiple accept="audio/*,.flac,.m4a,.mp3,.wav,.aiff" onChange={importFiles}/></label><button className="button-secondary" onClick={()=>go("library")}>Open collection <Icon name="arrow" size={15}/></button></div></div><div className="hero-mark"><span>m</span><small>01 / YOUR SHELF</small></div></div>
