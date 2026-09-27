@@ -1,20 +1,20 @@
 import {useEffect,useMemo,useRef,useState} from "react";
-import type {ChangeEvent,CSSProperties,ReactNode} from "react";
+import type {ChangeEvent,ReactNode} from "react";
 import type {StoredTrack,Tab,Track} from "./types";
 import {deleteTrack,getBlob,listTracks,saveTrack} from "./lib/db";
 import {searchOpenMusic} from "./lib/openverse";
 
-type View="songs"|"albums"|"artists";
-type Filter="all"|"favorites";
+type LibraryView="songs"|"albums"|"artists";
 type Sort="recent"|"title"|"artist";
 
-const NAV:[Tab,string,string][]=[["home","Home","home"],["library","Collection","library"],["explore","Explore","compass"],["settings","Settings","settings"]];
+const NAV:[Tab,string,string][]=[
+  ["home","Library","library"],["explore","Explore","compass"],["settings","Settings","settings"]
+];
 
-function Icon({name,size=18}:{name:string;size?:number}){
- const paths:Record<string,ReactNode>={
-  home:<><path d="m3 10 9-7 9 7"/><path d="M5.5 9.5v10h13v-10"/><path d="M9.5 19.5v-6h5v6"/></>,
-  library:<><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></>,
-  compass:<><circle cx="12" cy="12" r="8.5"/><path d="m15.2 8.8-2.1 5.1-5.1 2.1 2.1-5.1z"/></>,
+function Icon({name,size=20}:{name:string;size?:number}){
+ const p:Record<string,ReactNode>={
+  library:<><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 1 4 16.5z"/><path d="M4 6h16M8 10h8M8 14h5"/></>,
+  compass:<><circle cx="12" cy="12" r="8.5"/><path d="m15.5 8.5-2.3 5.2-5.2 2.3 2.3-5.2z"/></>,
   settings:<><circle cx="12" cy="12" r="3"/><path d="M19 15.2a2 2 0 0 0 .4 2.2l.1.1-2.1 2.1-.1-.1a2 2 0 0 0-2.2-.4 2 2 0 0 0-1.2 1.8v.1h-3v-.1a2 2 0 0 0-1.2-1.8 2 2 0 0 0-2.2.4l-.1.1-2.1-2.1.1-.1a2 2 0 0 0 .4-2.2A2 2 0 0 0 4 14H3.9v-3H4a2 2 0 0 0 1.8-1.2 2 2 0 0 0-.4-2.2l-.1-.1 2.1-2.1.1.1a2 2 0 0 0 2.2.4A2 2 0 0 0 11 4.1V4h3v.1a2 2 0 0 0 1.2 1.8 2 2 0 0 0 2.2-.4l.1-.1 2.1 2.1-.1.1a2 2 0 0 0-.4 2.2A2 2 0 0 0 20 11h.1v3H20a2 2 0 0 0-1.8 1.2Z"/></>,
   search:<><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></>,
   play:<path fill="currentColor" stroke="none" d="m9 6 10 6-10 6z"/>,
@@ -22,101 +22,174 @@ function Icon({name,size=18}:{name:string;size?:number}){
   next:<><path d="M18 5v14"/><path d="m6 6 9 6-9 6z"/></>,
   previous:<><path d="M6 5v14"/><path d="m18 6-9 6 9 6z"/></>,
   heart:<path d="M20.5 8.8c0 5-8.5 9.9-8.5 9.9S3.5 13.8 3.5 8.8a4.5 4.5 0 0 1 8.5-2.1 4.5 4.5 0 0 1 8.5 2.1Z"/>,
-  heartFill:<path fill="currentColor" stroke="none" d="M20.5 8.8c0 5-8.5 9.9-8.5 9.9S3.5 13.8 3.5 8.8a4.5 4.5 0 0 1 8.5-2.1 4.5 4.5 0 0 1 8.5 2.1Z"/>,
+  heartFill:<path fill="currentColor" stroke="none" d="M20.5 8.8c0 5-8.5 9.9-8.5 9.9S3.5 13.8 3.5 8.8a4.5 4.5 0 0 1 8.5-2.1 4.5 4.5 0 0 1 8.5 2.1 4.5 4.5 0 0 1 8.5 2.1Z"/>,
   plus:<><path d="M12 5v14M5 12h14"/></>,
-  arrow:<path d="M5 12h13M13 6l6 6-6 6"/>,
-  back:<path d="M19 12H6M11 6l-6 6 6 6"/>,
-  close:<><path d="m6 6 12 12M18 6 6 18"/></>,
-  more:<><circle cx="6" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.2" fill="currentColor" stroke="none"/></>,
+  more:<><circle cx="5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.4" fill="currentColor" stroke="none"/></>,
   shuffle:<><path d="M3 7h3c4 0 5 10 9 10h6"/><path d="m18 14 3 3-3 3"/><path d="M3 17h3c1.5 0 2.5-.6 3-1.5M15 7h3l3 3"/></>,
   repeat:<><path d="m17 2 3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="m7 22-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></>,
+  queue:<><path d="M4 6h11M4 12h11M4 18h7"/><path d="m17 16 3 3-3 3"/></>,
+  close:<><path d="m6 6 12 12M18 6 6 18"/></>,
+  back:<path d="M19 12H6M11 6l-5 6 5 6"/>,
   download:<><path d="M12 3v11"/><path d="m7 10 5 5 5-5"/><path d="M4 20h16"/></>,
-  trash:<><path d="M4 7h16M10 11v6M14 11v6"/><path d="m6 7 1 14h10l1-14M9 7V4h6v3"/></>
+  trash:<><path d="M4 7h16M10 11v6M14 11v6"/><path d="m6 7 1 14h10l1-14M9 7V4h6v3"/></>,
+  arrow:<path d="M5 12h13M13 6l6 6-6 6"/>
  };
- return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
+ return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{p[name]}</svg>;
 }
 
 function time(s?:number){if(!Number.isFinite(s)||!s)return "—";const n=Math.floor(s);return Math.floor(n/60)+":"+String(n%60).padStart(2,"0")}
-function artworkKey(t:Track){return [...t.title+t.artist].reduce((a,c)=>a+c.charCodeAt(0),0)}
-function Artwork({track,size="row"}:{track:Track;size:"row"|"tile"|"hero"|"player"}){const seed=artworkKey(track);return track.artworkUrl?<img className={"art "+size} src={track.artworkUrl} alt=""/>:<div className={"art "+size+" generated"} style={{"--hue":seed%360} as CSSProperties}><span>{track.title.trim().slice(0,1).toUpperCase()}</span><i/></div>}
+function seed(t:Track){return [...(t.title+t.artist+t.album)].reduce((a,c)=>a+c.charCodeAt(0),0)}
+function Artwork({track,size="medium"}:{track:Track;size:"small"|"medium"|"large"|"hero"}){
+ const s=seed(track);
+ return track.artworkUrl?<img className={"art art-"+size} src={track.artworkUrl} alt=""/>:
+ <div className={"art art-"+size+" generated"} style={{"--h":s%360} as React.CSSProperties}><span>{track.title.trim().slice(0,1).toUpperCase()}</span><i/></div>;
+}
 function ids(key:string){try{return new Set<string>(JSON.parse(localStorage.getItem(key)||"[]"))}catch{return new Set<string>()}}
 function persist(key:string,set:Set<string>){try{localStorage.setItem(key,JSON.stringify([...set]))}catch{}}
-function markRecent(id:string){try{const old=JSON.parse(localStorage.getItem("mfa:recent")||"[]") as string[];localStorage.setItem("mfa:recent",JSON.stringify([id,...old.filter(x=>x!==id)].slice(0,30)))}catch{}}
-function duration(file:File){return new Promise<number|undefined>(resolve=>{const url=URL.createObjectURL(file),a=document.createElement("audio");let done=false;const finish=(v?:number)=>{if(done)return;done=true;clearTimeout(timer);a.removeAttribute("src");a.load();URL.revokeObjectURL(url);resolve(v)};const timer=window.setTimeout(()=>finish(),6000);a.preload="metadata";a.onloadedmetadata=()=>finish(Number.isFinite(a.duration)?a.duration:undefined);a.onerror=()=>finish();a.src=url})}
-function fileMeta(file:File){const base=file.name.replace(/\.[^.]+$/,"").replace(/[_]+/g," ").trim();const p=base.split(/\s+-\s+|\s+–\s+|\s+—\s+/).map(x=>x.trim()).filter(Boolean);return{title:p.length>1?p.slice(1).join(" — "):base,artist:p.length>1?p[0]:"Unknown artist",album:"Unknown album"}}
+function remember(id:string){try{const old=JSON.parse(localStorage.getItem("mfa:recent")||"[]") as string[];localStorage.setItem("mfa:recent",JSON.stringify([id,...old.filter(x=>x!==id)].slice(0,40)))}catch{}}
+function fileMeta(file:File){const base=file.name.replace(/.[^.]+$/,"").replace(/[_]+/g," ").trim();const p=base.split(/\s+-\s+|\s+–\s+|\s+—\s+/).map(x=>x.trim()).filter(Boolean);return{title:p.length>1?p.slice(1).join(" — "):base,artist:p.length>1?p[0]:"Local file",album:"Local files"}}
+function duration(file:File){return new Promise<number|undefined>(resolve=>{const url=URL.createObjectURL(file),a=document.createElement("audio");let done=false;const finish=(v?:number)=>{if(done)return;done=true;clearTimeout(timer);a.removeAttribute("src");a.load();URL.revokeObjectURL(url);resolve(v)};const timer=window.setTimeout(()=>finish(),5000);a.preload="metadata";a.onloadedmetadata=()=>finish(Number.isFinite(a.duration)?a.duration:undefined);a.onerror=()=>finish();a.src=url})}
 
 export default function App(){
- const[tab,setTab]=useState<Tab>("home"),[tracks,setTracks]=useState<StoredTrack[]>([]),[selected,setSelected]=useState<Track|null>(null),[playing,setPlaying]=useState(false),[progress,setProgress]=useState(0),[player,setPlayer]=useState(false),[queueOpen,setQueueOpen]=useState(false),[status,setStatus]=useState(""),[favorites,setFavorites]=useState<Set<string>>(()=>ids("mfa:favorites")),[recent,setRecent]=useState<string[]>(()=>[...ids("mfa:recent")]),[sort,setSort]=useState<Sort>("recent"),[shuffle,setShuffle]=useState(false),[repeat,setRepeat]=useState(false),[onboard,setOnboard]=useState(false),[search,setSearch]=useState("");
+ const[tab,setTab]=useState<Tab>("home"),[tracks,setTracks]=useState<StoredTrack[]>([]),[selected,setSelected]=useState<Track|null>(null),[playing,setPlaying]=useState(false),[progress,setProgress]=useState(0),[player,setPlayer]=useState(false),[queueOpen,setQueueOpen]=useState(false),[status,setStatus]=useState(""),[favorites,setFavorites]=useState<Set<string>>(()=>ids("mfa:favorites")),[recent,setRecent]=useState<string[]>(()=>{try{return JSON.parse(localStorage.getItem("mfa:recent")||"[]")}catch{return[]}}),[shuffle,setShuffle]=useState(false),[repeat,setRepeat]=useState(false),[onboard,setOnboard]=useState(false),[search,setSearch]=useState("");
  const audio=useRef(new Audio()),objectUrl=useRef<string|null>(null);
- useEffect(()=>{listTracks().then(found=>{setTracks(found);if(found.length){try{localStorage.setItem("mfa:onboarded","1")}catch{}}else{try{setOnboard(localStorage.getItem("mfa:onboarded")!=="1")}catch{setOnboard(true)}}}).catch(()=>setStatus("Your local shelf could not be opened."))},[]);
+
+ useEffect(()=>{listTracks().then(found=>{setTracks(found);if(!found.length){try{setOnboard(localStorage.getItem("mfa:onboarded")!=="1")}catch{setOnboard(true)}}}).catch(()=>setStatus("Your library could not be opened."))},[]);
  useEffect(()=>()=>{audio.current.pause();if(objectUrl.current)URL.revokeObjectURL(objectUrl.current)},[]);
- const sorted=useMemo(()=>[...tracks].sort((a,b)=>sort==="title"?a.title.localeCompare(b.title):sort==="artist"?a.artist.localeCompare(b.artist)||a.title.localeCompare(b.title):b.addedAt-a.addedAt),[tracks,sort]);
+ useEffect(()=>{const a=audio.current;a.ontimeupdate=()=>setProgress(a.currentTime);a.onloadedmetadata=()=>setProgress(a.currentTime);a.onended=()=>advance(1);return()=>{a.ontimeupdate=null;a.onended=null}},[selected,shuffle,repeat]);
+ useEffect(()=>{if(!selected||typeof navigator==="undefined"||!("mediaSession" in navigator))return;const m=navigator.mediaSession;m.metadata=new MediaMetadata({title:selected.title,artist:selected.artist||"Local file",album:selected.album||"Music For All",artwork:selected.artworkUrl?[{src:selected.artworkUrl}]:[]});m.setActionHandler("play",()=>toggle());m.setActionHandler("pause",()=>toggle());m.setActionHandler("seekbackward",()=>seek(Math.max(0,audio.current.currentTime-10)));m.setActionHandler("seekforward",()=>seek(audio.current.currentTime+10));m.setActionHandler("previoustrack",()=>advance(-1));m.setActionHandler("nexttrack",()=>advance(1));},[selected]);
+ useEffect(()=>{if("mediaSession" in navigator)navigator.mediaSession.playbackState=playing?"playing":"paused"},[playing]);
+
+ const sorted=useMemo(()=>[...tracks].sort((a,b)=>b.addedAt-a.addedAt),[tracks]);
  const recentTracks=useMemo(()=>recent.map(id=>tracks.find(t=>t.id===id)).filter(Boolean) as StoredTrack[],[recent,tracks]);
- const featured=recentTracks[0]||sorted[0];
  const queue=useMemo(()=>selected?[selected,...sorted.filter(t=>t.id!==selected.id)]:sorted,[selected,sorted]);
- useEffect(()=>{const a=audio.current;a.ontimeupdate=()=>setProgress(a.currentTime);a.onended=()=>{if(repeat&&selected){void play(selected)}else{setPlaying(false);advance(1)}}},[selected,repeat,shuffle,queue]);
- useEffect(()=>{const f=(e:KeyboardEvent)=>{if(e.code==="Space"&&!(e.target instanceof HTMLInputElement)){e.preventDefault();toggle()}};window.addEventListener("keydown",f);return()=>window.removeEventListener("keydown",f)},[selected,playing]);
- function go(next:Tab){setTab(next);setSearch("")}
- async function play(track:Track){try{if(objectUrl.current){URL.revokeObjectURL(objectUrl.current);objectUrl.current=null}let src=track.audioUrl;if(track.blobId){const blob=await getBlob(track.blobId);if(!blob){setStatus("That file is no longer available on this device.");return}src=URL.createObjectURL(blob);objectUrl.current=src}if(!src){setStatus("This source has no playable audio.");return}audio.current.src=src;setSelected(track);setProgress(0);markRecent(track.id);setRecent([track.id,...recent.filter(x=>x!==track.id)].slice(0,30));await audio.current.play();setPlaying(true);setStatus("")}catch{setPlaying(false);setStatus("Playback could not start here.")}}
+
+ function go(t:Tab){setTab(t);setSearch("")}
+ async function play(track:Track){try{if(objectUrl.current){URL.revokeObjectURL(objectUrl.current);objectUrl.current=null}let src=track.audioUrl;if(track.blobId){const blob=await getBlob(track.blobId);if(!blob){setStatus("This file is no longer on the device.");return}src=URL.createObjectURL(blob);objectUrl.current=src}if(!src){setStatus("This track has no playable audio.");return}audio.current.src=src;audio.current.currentTime=0;setSelected(track);setProgress(0);remember(track.id);setRecent(r=>[track.id,...r.filter(x=>x!==track.id)].slice(0,40));await audio.current.play();setPlaying(true);setStatus("");}catch{setPlaying(false);setStatus("Playback could not start.")}}
  function toggle(){if(!selected)return;if(audio.current.paused)audio.current.play().then(()=>setPlaying(true)).catch(()=>setStatus("Tap play to start playback."));else{audio.current.pause();setPlaying(false)}}
- function seek(v:number){if(!Number.isFinite(audio.current.duration))return;audio.current.currentTime=Math.max(0,Math.min(v,audio.current.duration));setProgress(audio.current.currentTime)}
- function advance(dir:number){if(!selected||!queue.length)return;let next:Track|undefined;if(shuffle&&dir>0){const c=queue.filter(x=>x.id!==selected.id);next=c[Math.floor(Math.random()*c.length)]}else{const i=queue.findIndex(x=>x.id===selected.id);next=queue[(i+dir+queue.length)%queue.length]}if(next)void play(next)}
+ function seek(v:number){const d=audio.current.duration;if(!Number.isFinite(d))return;const n=Math.max(0,Math.min(v,d));audio.current.currentTime=n;setProgress(n)}
+ function advance(dir:number){if(!selected||!queue.length)return;const candidates=queue.filter(t=>t.id!==selected.id);let next:Track|undefined;if(shuffle&&dir>0)next=candidates[Math.floor(Math.random()*candidates.length)];else{const i=queue.findIndex(t=>t.id===selected.id);next=queue[(i+dir+queue.length)%queue.length]}if(next)void play(next);else if(repeat)void play(selected);else setPlaying(false)}
  function fav(id:string){setFavorites(current=>{const n=new Set(current);n.has(id)?n.delete(id):n.add(id);persist("mfa:favorites",n);return n})}
- async function importFiles(e:ChangeEvent<HTMLInputElement>){const files=[...(e.target.files||[])];if(!files.length)return;let done=0;setStatus("Bringing 1 of "+files.length+" tracks home…");try{for(const file of files){const meta=fileMeta(file),id=crypto.randomUUID(),blobId=crypto.randomUUID();await saveTrack({id,blobId,title:meta.title||file.name,artist:meta.artist,album:meta.album,source:"local",duration:await duration(file),addedAt:Date.now()},file);done++;setStatus("Brought "+done+" of "+files.length+" home…")}const found=await listTracks();setTracks(found);try{localStorage.setItem("mfa:onboarded","1")}catch{}setOnboard(false);setStatus(done+" "+(done===1?"track":"tracks")+" added to your shelf.");}catch(err){console.error(err);setTracks(await listTracks().catch(()=>[]));setStatus(done?"Added "+done+" tracks; the remaining file was not saved.":"The file could not be stored. Nothing else changed.")}finally{e.target.value=""}}
+ async function importFiles(e:ChangeEvent<HTMLInputElement>){const files=[...(e.target.files||[])];if(!files.length)return;let done=0;setStatus("Importing "+files.length+" "+(files.length===1?"track":"tracks")+"…");try{for(const file of files){const meta=fileMeta(file);const id=crypto.randomUUID();const blobId=crypto.randomUUID();await saveTrack({id,blobId,title:meta.title||file.name,artist:meta.artist,album:meta.album,source:"local",duration:await duration(file),addedAt:Date.now()},file);done++;setStatus("Imported "+done+" of "+files.length)}const found=await listTracks();setTracks(found);try{localStorage.setItem("mfa:onboarded","1")}catch{}setOnboard(false);setStatus(done+" "+(done===1?"track":"tracks")+" imported.");}catch{setTracks(await listTracks().catch(()=>[]));setStatus(done?done+" imported; one or more files failed.":"Import failed. Your existing library is unchanged.")}finally{e.target.value=""}}
  async function remove(t:StoredTrack){await deleteTrack(t.id,t.blobId);setTracks(await listTracks());if(selected?.id===t.id){audio.current.pause();setSelected(null);setPlaying(false);setPlayer(false)}}
  async function searchOpen(query:string){if(!query.trim())return;setStatus("");try{setSearching(true);setOpen(await searchOpenMusic(query.trim()))}catch{setOpen([]);setStatus("Explore is unavailable right now.")}finally{setSearching(false)}}
  const[open,setOpen]=useState<Track[]>([]),[searching,setSearching]=useState(false);
- async function download(t:Track){if(!t.audioUrl)return;setStatus("Saving a copy…");try{const r=await fetch(t.audioUrl);if(!r.ok)throw new Error();const s:StoredTrack={...t,blobId:crypto.randomUUID(),addedAt:Date.now()};await saveTrack(s,await r.blob());setTracks(await listTracks());setStatus("Saved to your shelf.")}catch{setStatus("This source does not allow browser downloads.")}}
- return <div className="product">
-  <header className="masthead"><button className="brand" onClick={()=>go("home")}><span className="brand-mark">m</span><span>music for all</span></button><div className="masthead-center"><span className="status-dot"/><span>LOCAL / PRIVATE</span></div><button className="header-search" onClick={()=>go(tab==="explore"?"explore":"library")}><Icon name="search" size={18}/><span>Search</span></button></header>
-  <aside className="desktop-nav"><span className="nav-caption">NAVIGATE</span>{NAV.map(([id,label,icon])=><button key={id} className={tab===id?"nav-link active":"nav-link"} onClick={()=>go(id)}><Icon name={icon} size={17}/><span>{label}</span></button>)}<div className="nav-note"><b>LOCAL FIRST</b><span>Your files stay on this device.</span></div></aside>
-  <main>{tab==="home"&&<Home tracks={sorted} recent={recentTracks} featured={featured} play={play} importFiles={importFiles} go={go}/>}
-  {tab==="library"&&<Library tracks={sorted} favorites={favorites} fav={fav} sort={sort} setSort={setSort} play={play} remove={remove}/>}
-  {tab==="explore"&&<Explore query={search} setQuery={setSearch} search={()=>searchOpen(search)} searching={searching} results={open} play={play} download={download}/>}
-  {tab==="settings"&&<Settings tracks={tracks} go={go} onboard={()=>setOnboard(true)}/>}</main>
-  {selected&&<Mini track={selected} playing={playing} progress={progress} toggle={toggle} open={()=>setPlayer(true)} queue={()=>setQueueOpen(true)}/>}
-  <nav className="mobile-nav">{NAV.map(([id,label,icon])=><button key={id} className={tab===id?"active":""} onClick={()=>go(id)}><Icon name={icon} size={18}/><span>{label}</span></button>)}</nav>
+ async function download(t:Track){if(!t.audioUrl)return;setStatus("Saving to library…");try{const r=await fetch(t.audioUrl);if(!r.ok)throw new Error();const s:StoredTrack={...t,blobId:crypto.randomUUID(),addedAt:Date.now()};await saveTrack(s,await r.blob());setTracks(await listTracks());setStatus("Saved to library.");}catch{setStatus("This source does not permit browser downloads.")}}
+
+ return <div className="app">
+  <header className="topbar">
+   <button className="wordmark" onClick={()=>go("home")}><span className="mark">M</span><span>music for all</span></button>
+   <div className="topbar-actions">
+    <button className="icon-button search-trigger" onClick={()=>go("explore")} aria-label="Search"><Icon name="search" size={21}/></button>
+    <label className="import-button"><Icon name="plus" size={18}/><span>Import</span><input hidden type="file" multiple accept="audio/*,.flac,.m4a,.mp3,.wav,.aiff" onChange={importFiles}/></label>
+   </div>
+  </header>
+
+  <main>
+   {tab==="home"&&<LibraryHome tracks={sorted} recent={recentTracks} selected={selected} playing={playing} favorites={favorites} play={play} toggle={toggle} fav={fav} openPlayer={()=>setPlayer(true)} importFiles={importFiles}/>}
+   {tab==="explore"&&<Explore query={search} setQuery={setSearch} search={()=>searchOpen(search)} searching={searching} results={open} play={play} download={download}/>}
+   {tab==="settings"&&<Settings tracks={tracks} onboard={()=>setOnboard(true)}/>}
+  </main>
+
+  {selected&&!player&&<MiniPlayer track={selected} playing={playing} progress={progress} toggle={toggle} open={()=>setPlayer(true)} queue={()=>setQueueOpen(true)}/>}
+  <nav className="tabbar">{NAV.map(([id,label,icon])=><button key={id} className={tab===id?"active":""} onClick={()=>go(id)}><Icon name={icon} size={21}/><span>{label}</span></button>)}</nav>
+
   {queueOpen&&selected&&<Queue queue={queue} selected={selected} play={play} close={()=>setQueueOpen(false)}/>}
   {player&&selected&&<Player track={selected} progress={progress} playing={playing} favorite={favorites.has(selected.id)} fav={()=>fav(selected.id)} toggle={toggle} seek={seek} previous={()=>advance(-1)} next={()=>advance(1)} shuffle={shuffle} repeat={repeat} setShuffle={setShuffle} setRepeat={setRepeat} queue={()=>setQueueOpen(true)} close={()=>setPlayer(false)}/>}
   {onboard&&<Onboarding importFiles={importFiles} close={()=>{try{localStorage.setItem("mfa:onboarded","1")}catch{}setOnboard(false)}}/>}
-  {status&&<button className="status" onClick={()=>setStatus("")}>{status}<Icon name="close" size={13}/></button>}
+  {status&&<button className="toast" onClick={()=>setStatus("")}>{status}<Icon name="close" size={14}/></button>}
  </div>
 }
 
-function Home({tracks,recent,featured,play,importFiles,go}:{tracks:StoredTrack[];recent:StoredTrack[];featured?:StoredTrack;play:(t:Track)=>void;importFiles:(e:ChangeEvent<HTMLInputElement>)=>void;go:(t:Tab)=>void}){
- const albums=Array.from(new Map(tracks.map(t=>[t.album,t])).values()).slice(0,6);
- return <section className="home-page">
-  <div className="home-hero"><div className="hero-copy"><span className="eyebrow">A PRIVATE MUSIC SHELF</span><h1>Keep your music<br/><em>close.</em></h1><p>Your own files, stored here on this device. No account. No feed. No algorithm between you and what you brought with you.</p><div className="hero-actions"><label className="button-primary">Bring music in<input hidden type="file" multiple accept="audio/*,.flac,.m4a,.mp3,.wav,.aiff" onChange={importFiles}/></label><button className="button-secondary" onClick={()=>go("library")}>Open collection <Icon name="arrow" size={15}/></button></div></div><div className="hero-mark"><span>m</span><small>01 / YOUR SHELF</small></div></div>
-  {featured&&<section className="continue"><div className="section-head"><span>CONTINUE LISTENING</span><button onClick={()=>play(featured)}>Play again <Icon name="play" size={12}/></button></div><button className="continue-card" onClick={()=>play(featured)}><Artwork track={featured} size="hero"/><div><span className="eyebrow">LAST PLAYED</span><h2>{featured.title}</h2><p>{featured.artist}</p><small>{featured.album}</small><strong><Icon name="play" size={13}/> Play</strong></div></button></section>}
-  {recent.length>0&&<Shelf title="Recently added" items={recent} play={play}/>}
-  {albums.length>0&&<Shelf title="Albums" items={albums} play={play}/>}
-  {!tracks.length&&<section className="empty-home"><div className="empty-index">02</div><div><span className="eyebrow">START HERE</span><h2>Nothing has arrived yet.</h2><p>Import an MP3, FLAC, M4A, WAV or AIFF and this page becomes your personal listening room.</p><label className="button-primary">Choose music<input hidden type="file" multiple accept="audio/*,.flac,.m4a,.mp3,.wav,.aiff" onChange={importFiles}/></label></div></section>}
+function LibraryHome({tracks,recent,selected,playing,favorites,play,toggle,fav,openPlayer,importFiles}:{tracks:StoredTrack[];recent:StoredTrack[];selected:Track|null;playing:boolean;favorites:Set<string>;play:(t:Track)=>void;toggle:()=>void;fav:(id:string)=>void;openPlayer:()=>void;importFiles:(e:ChangeEvent<HTMLInputElement>)=>void}){
+ const[view,setView]=useState<LibraryView>("songs"),[sort,setSort]=useState<Sort>("recent"),[query,setQuery]=useState("");
+ const visible=useMemo(()=>{const q=query.toLowerCase().trim();return [...tracks].sort((a,b)=>sort==="title"?a.title.localeCompare(b.title):sort==="artist"?a.artist.localeCompare(b.artist):b.addedAt-a.addedAt).filter(t=>!q||[t.title,t.artist,t.album].some(x=>x.toLowerCase().includes(q)))},[tracks,sort,query]);
+ const albums=Array.from(new Map(visible.map(t=>[t.album,t])).values());
+ const artists=Array.from(new Map(visible.map(t=>[t.artist,t])).values());
+ return <section className="library-page">
+  <div className="library-title">
+   <div><span className="kicker">YOUR LIBRARY</span><h1>{tracks.length?<>Your music<span className="title-dot">.</span></>:<>Bring your music<br/><i>home.</i></>}</h1></div>
+   <div className="library-count">{tracks.length}<small>{tracks.length===1?"track":"tracks"}</small></div>
+  </div>
+
+  {selected?<section className="now-card" onClick={openPlayer}>
+   <Artwork track={selected} size="hero"/>
+   <div className="now-copy"><span className="kicker">NOW PLAYING</span><h2>{selected.title}</h2><p>{selected.artist}</p><small>{selected.album}</small><div className="now-actions"><button onClick={e=>{e.stopPropagation();toggle()}} className="round-play"><Icon name={playing?"pause":"play"} size={20}/></button><button onClick={e=>{e.stopPropagation();fav(selected.id)}} className={favorites.has(selected.id)?"heart active":"heart"}><Icon name={favorites.has(selected.id)?"heartFill":"heart"} size={20}/></button></div></div>
+  </section>:<section className="welcome-card"><div><span className="kicker">LOCAL MUSIC PLAYER</span><h2>Your music,<br/><i>without the noise.</i></h2><p>Import your files. They stay on this device. No account required.</p></div><label className="welcome-import">Import music<input hidden type="file" multiple accept="audio/*,.flac,.m4a,.mp3,.wav,.aiff" onChange={importFiles}/></label></section>}
+
+  {recent.length>0&&<section className="strip"><div className="strip-head"><h2>Recently played</h2><span>{recent.length}</span></div><div className="cover-strip">{recent.slice(0,8).map(t=><button key={t.id} onClick={()=>play(t)}><Artwork track={t} size="medium"/><b>{t.title}</b><small>{t.artist}</small></button>)}</div></section>}
+
+  {tracks.length>0&&<section className="library-section">
+   <div className="library-toolbar">
+    <div className="segmented">{(["songs","albums","artists"] as LibraryView[]).map(v=><button className={view===v?"active":""} onClick={()=>setView(v)} key={v}>{v}</button>)}</div>
+    <label className="inline-search"><Icon name="search" size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search your library"/></label>
+    <select value={sort} onChange={e=>setSort(e.target.value as Sort)}><option value="recent">Recently added</option><option value="title">Title</option><option value="artist">Artist</option></select>
+   </div>
+   {view==="songs"&&<SongList tracks={visible} favorites={favorites} fav={fav} play={play}/>}
+   {view==="albums"&&<div className="grid">{albums.map(t=><button className="grid-item" key={t.album} onClick={()=>play(t)}><Artwork track={t} size="medium"/><b>{t.album}</b><small>{t.artist}</small></button>)}</div>}
+   {view==="artists"&&<div className="artist-list">{artists.map(t=><button key={t.artist} onClick={()=>play(t)}><Artwork track={t} size="small"/><span><b>{t.artist}</b><small>{visible.filter(x=>x.artist===t.artist).length} {visible.filter(x=>x.artist===t.artist).length===1?"track":"tracks"}</small></span><Icon name="arrow" size={18}/></button>)}</div>}
+   {!visible.length&&<div className="empty">Nothing matches your search.</div>}
+  </section>}
  </section>
 }
 
-function Shelf({title,items,play}:{title:string;items:StoredTrack[];play:(t:Track)=>void}){return <section className="shelf"><div className="section-head"><span>{title.toUpperCase()}</span><b>{items.length}</b></div><div className="shelf-grid">{items.map(t=><button className="shelf-card" key={t.id} onClick={()=>play(t)}><Artwork track={t} size="tile"/><b>{t.title}</b><small>{t.artist}</small></button>)}</div></section>}
+function SongList({tracks,favorites,fav,play}:{tracks:StoredTrack[];favorites:Set<string>;fav:(id:string)=>void;play:(t:Track)=>void}){
+ return <div className="song-list">{tracks.map((t,i)=><div className="song" key={t.id}>
+  <button className="song-main" onClick={()=>play(t)}><span className="song-number">{String(i+1).padStart(2,"0")}</span><Artwork track={t} size="small"/><span className="song-info"><b>{t.title}</b><small>{t.artist}<i>·</i>{t.album}</small></span></button>
+  <span className="song-time">{time(t.duration)}</span>
+  <button className={favorites.has(t.id)?"song-heart active":"song-heart"} onClick={()=>fav(t.id)} aria-label="Favourite"><Icon name={favorites.has(t.id)?"heartFill":"heart"} size={17}/></button>
+ </div>)}</div>
+}
 
-function Library({tracks,favorites,fav,sort,setSort,play,remove}:{tracks:StoredTrack[];favorites:Set<string>;fav:(id:string)=>void;sort:Sort;setSort:(s:Sort)=>void;play:(t:Track)=>void;remove:(t:StoredTrack)=>void}){
- const[view,setView]=useState<View>("songs"),[filter,setFilter]=useState<Filter>("all"),[query,setQuery]=useState("");
- const visible=useMemo(()=>{const q=query.trim().toLowerCase();return tracks.filter(t=>(filter==="all"||favorites.has(t.id))&&(!q||[t.title,t.artist,t.album].some(x=>x.toLowerCase().includes(q))))},[tracks,filter,query,favorites]);
- const albums=Array.from(new Map(visible.map(t=>[t.album,t])).values()),artists=Array.from(new Map(visible.map(t=>[t.artist,t])).values());
- return <section className="collection-page"><header className="collection-head"><div><span className="eyebrow">THE COLLECTION</span><h1>Everything<br/><em>you kept.</em></h1></div><div className="collection-count"><strong>{tracks.length}</strong><span>tracks<br/>on this device</span></div></header>
- <div className="library-bar"><div className="filter-tabs">{(["all","favorites"] as Filter[]).map(x=><button className={filter===x?"active":""} onClick={()=>setFilter(x)} key={x}>{x==="all"?"All music":"Favourites"}</button>)}</div><div className="view-tabs">{(["songs","albums","artists"] as View[]).map(x=><button className={view===x?"active":""} onClick={()=>setView(x)} key={x}>{x}</button>)}</div><label className="library-input"><Icon name="search" size={15}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Find in your collection"/></label><select value={sort} onChange={e=>setSort(e.target.value as Sort)}><option value="recent">Recently added</option><option value="title">Title</option><option value="artist">Artist</option></select></div>
- {view==="songs"?<TrackTable tracks={visible} favorites={favorites} play={play} fav={fav} remove={remove}/>:<div className="collection-grid">{(view==="albums"?albums:artists).map(t=><button className="collection-card" key={view==="albums"?t.album:t.artist} onClick={()=>play(t)}><Artwork track={t} size="tile"/><b>{view==="albums"?t.album:t.artist}</b><small>{view==="albums"?t.artist:"Artist"}</small></button>)}</div>}
- {!visible.length&&<div className="empty-collection"><span>00</span><h2>{filter==="favorites"?"No favourites yet.":"Your collection is empty."}</h2><p>There is nothing matching this view.</p></div>}
+function Explore({query,setQuery,search,searching,results,play,download}:{query:string;setQuery:(s:string)=>void;search:()=>void;searching:boolean;results:Track[];play:(t:Track)=>void;download:(t:Track)=>void}){
+ return <section className="explore-page">
+  <div className="explore-head"><span className="kicker">OPEN MUSIC</span><h1>Find something<br/><i>worth hearing.</i></h1><p>Search a small, rights-aware catalogue. Keep only music marked Public Domain or CC0.</p></div>
+  <div className="big-search"><Icon name="search" size={25}/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&search()} placeholder="Search sounds, instruments, recordings…"/><button onClick={search}>{searching?"…":"Search"}</button></div>
+  {results.length?<div className="open-results">{results.map(t=><article key={t.id}><Artwork track={t} size="medium"/><div><span className="license">{t.license==="cc0"?"CC0":"PUBLIC DOMAIN"} · {t.provider||"OPEN"}</span><h2>{t.title}</h2><p>{t.artist}</p><small>{t.album}</small></div><div className="result-actions"><button onClick={()=>play(t)}><Icon name="play" size={16}/>Listen</button><button onClick={()=>download(t)}><Icon name="plus" size={16}/>Keep</button></div></article>)}</div>:<div className="explore-empty"><span>OPEN SHELF</span><h2>Search when you want<br/>something outside your library.</h2></div>}
  </section>
 }
 
-function TrackTable({tracks,favorites,play,fav,remove}:{tracks:StoredTrack[];favorites:Set<string>;play:(t:Track)=>void;fav:(id:string)=>void;remove:(t:StoredTrack)=>void}){return <div className="track-table"><div className="track-labels"><span>#</span><span>Track</span><span>Album</span><span>Time</span><span/></div>{tracks.map((t,i)=><div className="track-row" key={t.id}><span className="number">{String(i+1).padStart(2,"0")}</span><button className="track-main" onClick={()=>play(t)}><Artwork track={t} size="row"/><span><b>{t.title}</b><small>{t.artist}</small></span></button><span className="album">{t.album}</span><span className="track-time">{time(t.duration)}</span><div className="track-actions"><button onClick={()=>fav(t.id)} className={favorites.has(t.id)?"liked":""} aria-label="Favourite"><Icon name={favorites.has(t.id)?"heartFill":"heart"} size={15}/></button><button onClick={()=>remove(t)} aria-label="Remove"><Icon name="trash" size={15}/></button></div></div>)}</div>}
+function Settings({tracks,onboard}:{tracks:StoredTrack[];onboard:()=>void}){
+ const bytes=tracks.length?tracks.length:"0";
+ return <section className="settings-page">
+  <div className="settings-head"><span className="kicker">SETTINGS</span><h1>Make it<br/><i>yours.</i></h1><p>Music For All is intentionally small: your files, your device, your controls.</p></div>
+  <div className="settings-list">
+   <div className="setting"><span><b>LIBRARY</b><strong>{bytes} {tracks.length===1?"track":"tracks"}</strong><small>Your local collection is stored privately in this browser.</small></span><span className="setting-value">LOCAL</span></div>
+   <div className="setting"><span><b>ONBOARDING</b><strong>Start over</strong><small>See the short introduction and import flow again.</small></span><button onClick={onboard}>Show intro</button></div>
+   <div className="setting"><span><b>OPEN MUSIC</b><strong>Public Domain + CC0</strong><small>Explore uses a narrow rights model for keepable downloads.</small></span><span className="setting-value">OPENVERSE</span></div>
+  </div>
+  <footer><span>Music For All · local-first</span><span>v0.2</span></footer>
+ </section>
+}
 
-function Explore({query,setQuery,search,searching,results,play,download}:{query:string;setQuery:(s:string)=>void;search:()=>void;searching:boolean;results:Track[];play:(t:Track)=>void;download:(t:Track)=>void}){return <section className="explore-page"><div className="explore-intro"><span className="eyebrow">OPEN SHELF</span><h1>Find something<br/><em>worth keeping.</em></h1><p>A deliberately narrow catalogue of public-domain and CC0 audio. Discover broadly; save only what passes the rights model.</p></div><div className="explore-search"><Icon name="search" size={21}/><input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&search()} placeholder="Try piano, rain, field recordings…"/><button onClick={search}>{searching?"Searching…":"Search"}</button></div><div className="rights-line"><span>DOWNLOAD ELIGIBILITY</span><b>PUBLIC DOMAIN + CC0</b><a href="https://docs.openverse.org/" target="_blank" rel="noreferrer">How rights work ↗</a></div>{results.length?<div className="explore-results">{results.map(t=><article className="explore-result" key={t.id}><Artwork track={t} size="tile"/><div><span>{t.license==="cc0"?"CC0":"PUBLIC DOMAIN"} · {t.provider||"OPENVERSE"}</span><h2>{t.title}</h2><p>{t.artist}</p><small>{t.album}</small></div><div className="result-actions"><button onClick={()=>play(t)}><Icon name="play" size={13}/> Listen</button><button onClick={()=>download(t)}><Icon name="download" size={13}/> Keep</button></div></article>)}</div>:<div className="explore-empty"><span>03</span><h2>Search the open shelf.</h2><p>Results stay here until you choose to keep one. Your collection is never changed by a search.</p></div>}</section>}
+function MiniPlayer({track,playing,progress,toggle,open,queue}:{track:Track;playing:boolean;progress:number;toggle:()=>void;open:()=>void;queue:()=>void}){
+ return <div className="mini-player">
+  <button className="mini-info" onClick={open}><Artwork track={track} size="small"/><span><b>{track.title}</b><small>{track.artist}</small></span></button>
+  <div className="mini-progress" style={{width:track.duration?Math.min(100,progress/track.duration*100)+"%":"0%"}}/>
+  <button className="mini-control" onClick={toggle} aria-label={playing?"Pause":"Play"}><Icon name={playing?"pause":"play"} size={19}/></button>
+  <button className="mini-control queue-control" onClick={queue} aria-label="Queue"><Icon name="queue" size={20}/></button>
+ </div>
+}
 
-function Settings({tracks,go,onboard}:{tracks:StoredTrack[];go:(t:Tab)=>void;onboard:()=>void}){const[usage,setUsage]=useState<number>();useEffect(()=>{navigator.storage?.estimate().then(x=>{if(typeof x.usage==="number")setUsage(x.usage)}).catch(()=>{})},[tracks]);return <section className="settings-page"><span className="eyebrow">THE PRODUCT</span><h1>Quiet by design.</h1><p className="settings-lede">Music For All is a local music shelf, not a social network and not a streaming catalogue.</p><div className="settings-block"><div><span>STORAGE</span><h2>{usage?((usage/1024/1024).toFixed(1)+" MB"):"Local storage"}</h2><p>Audio lives in this browser's private file storage. Track information is kept separately so the library can stay lightweight.</p></div><strong>{tracks.length} TRACKS</strong></div><div className="settings-block"><div><span>GETTING STARTED</span><h2>See the introduction again</h2><p>Replay the first-run explanation without deleting your music.</p></div><button onClick={onboard}>Show intro</button></div><div className="settings-block"><div><span>EXPLORE</span><h2>Open music is separate</h2><p>Public-domain and CC0 discoveries can be saved into your local shelf. Connected services are not treated as owned files.</p></div><button onClick={()=>go("explore")}>Explore</button></div><footer>Music For All · open source · MIT <a href="https://github.com/madebykraman/musicforall" target="_blank" rel="noreferrer">Source ↗</a></footer></section>}
+function Queue({queue,selected,play,close}:{queue:Track[];selected:Track;play:(t:Track)=>void;close:()=>void}){
+ return <div className="overlay"><section className="queue-panel"><header><div><span>PLAY QUEUE</span><b>{queue.length} tracks</b></div><button onClick={close}><Icon name="close" size={20}/></button></header>{queue.map((t,i)=><button className={t.id===selected.id?"queue-row current":"queue-row"} key={t.id} onClick={()=>{void play(t);close()}}><span>{String(i+1).padStart(2,"0")}</span><Artwork track={t} size="small"/><span><b>{t.title}</b><small>{t.artist}</small></span>{t.id===selected.id&&<i>Playing</i>}</button>)}</section></div>
+}
 
-function Mini({track,playing,progress,toggle,open,queue}:{track:Track;playing:boolean;progress:number;toggle:()=>void;open:()=>void;queue:()=>void}){return <div className="mini"><button className="mini-info" onClick={open}><Artwork track={track} size="row"/><span><b>{track.title}</b><small>{track.artist}</small></span></button><div className="mini-progress" style={{width:track.duration?Math.min(progress/track.duration,1)*100+"%":0}}/><button className="mini-play" onClick={toggle} aria-label="Play"><Icon name={playing?"pause":"play"} size={16}/></button><button className="mini-more" onClick={queue}><Icon name="more" size={17}/></button></div>}
+function Player({track,progress,playing,favorite,toggle,fav,seek,previous,next,shuffle,repeat,setShuffle,setRepeat,queue,close}:{track:Track;progress:number;playing:boolean;favorite:boolean;toggle:()=>void;fav:()=>void;seek:(n:number)=>void;previous:()=>void;next:()=>void;shuffle:boolean;repeat:boolean;setShuffle:(v:boolean)=>void;setRepeat:(v:boolean)=>void;queue:()=>void;close:()=>void}){
+ return <div className="player">
+  <header><button onClick={close}><Icon name="back" size={21}/><span>Library</span></button><span>NOW PLAYING</span><button onClick={queue}><Icon name="queue" size={21}/></button></header>
+  <div className="player-content">
+   <Artwork track={track} size="hero"/>
+   <div className="player-info"><div className="player-title"><div><h1>{track.title}</h1><p>{track.artist}</p><small>{track.album}</small></div><button className={favorite?"player-heart active":"player-heart"} onClick={fav}><Icon name={favorite?"heartFill":"heart"} size={22}/></button></div>
+    <div className="scrubber"><input type="range" min="0" max={Number.isFinite(audioDuration(track,progress))?audioDuration(track,progress):100} value={progress} onChange={e=>seek(Number(e.target.value))}/><div><span>{time(progress)}</span><span>{time(track.duration)}</span></div></div>
+    <div className="transport"><button className={shuffle?"on":""} onClick={()=>setShuffle(!shuffle)}><Icon name="shuffle" size={20}/></button><button onClick={previous}><Icon name="previous" size={25}/></button><button className="play-main" onClick={toggle}><Icon name={playing?"pause":"play"} size={25}/></button><button onClick={next}><Icon name="next" size={25}/></button><button className={repeat?"on":""} onClick={()=>setRepeat(!repeat)}><Icon name="repeat" size={20}/></button></div>
+    <button className="queue-link" onClick={queue}>View play queue <Icon name="arrow" size={17}/></button>
+   </div>
+  </div>
+ </div>
+}
+function audioDuration(track:Track,progress:number){return track.duration&&track.duration>0?track.duration:Math.max(100,progress+1)}
 
-function Queue({queue,selected,play,close}:{queue:Track[];selected:Track;play:(t:Track)=>void;close:()=>void}){return <div className="queue-layer"><section className="queue"><header><div><span>UP NEXT</span><b>{queue.length} tracks</b></div><button onClick={close}><Icon name="close" size={18}/></button></header>{queue.map((t,i)=><button className={t.id===selected.id?"queue-track current":"queue-track"} key={t.id} onClick={()=>play(t)}><span>{String(i+1).padStart(2,"0")}</span><Artwork track={t} size="row"/><div><b>{t.title}</b><small>{t.artist}</small></div></button>)}</section></div>}
-
-function Player({track,progress,playing,favorite,fav,toggle,seek,previous,next,shuffle,repeat,setShuffle,setRepeat,queue,close}:{track:Track;progress:number;playing:boolean;favorite:boolean;fav:()=>void;toggle:()=>void;seek:(n:number)=>void;previous:()=>void;next:()=>void;shuffle:boolean;repeat:boolean;setShuffle:(v:boolean)=>void;setRepeat:(v:boolean)=>void;queue:()=>void;close:()=>void}){return <div className="player-screen"><header><button onClick={close}><Icon name="back" size={20}/><span>Back</span></button><span>NOW PLAYING</span><button onClick={queue}>Queue</button></header><div className="player-body"><Artwork track={track} size="player"/><div className="player-details"><div><span className="eyebrow">LOCAL LISTENING</span><h1>{track.title}</h1><h2>{track.artist}</h2><p>{track.album}</p></div><button className={favorite?"player-heart liked":"player-heart"} onClick={fav}><Icon name={favorite?"heartFill":"heart"} size={20}/></button><div className="player-seek"><input type="range" min="0" max={track.duration||1} step=".1" value={Math.min(progress,track.duration||1)} onChange={e=>seek(Number(e.target.value))}/><div><span>{time(progress)}</span><span>{time(track.duration)}</span></div></div><div className="player-controls"><button className={shuffle?"on":""} onClick={()=>setShuffle(!shuffle)}><Icon name="shuffle"/></button><button onClick={previous}><Icon name="previous" size={25}/></button><button className="main-play" onClick={toggle}><Icon name={playing?"pause":"play"} size={25}/></button><button onClick={next}><Icon name="next" size={25}/></button><button className={repeat?"on":""} onClick={()=>setRepeat(!repeat)}><Icon name="repeat"/></button></div><button className="queue-button" onClick={queue}>View play queue <Icon name="arrow" size={14}/></button></div></div></div>}
-
-function Onboarding({importFiles,close}:{importFiles:(e:ChangeEvent<HTMLInputElement>)=>void;close:()=>void}){return <div className="onboarding"><div className="onboard-art"><span>m</span><small>04 / PRIVATE LISTENING</small></div><div className="onboard-copy"><span className="eyebrow">WELCOME TO MUSIC FOR ALL</span><h1>Your music.<br/><em>Nothing else.</em></h1><p>Bring the files you already have. They stay on this device, outside a feed, account or recommendation system.</p><div className="onboard-rules"><div><b>01</b><span>Local first</span><small>Audio is stored privately in this browser.</small></div><div><b>02</b><span>Open when useful</span><small>Public-domain and CC0 music can be discovered separately.</small></div><div><b>03</b><span>No account</span><small>Music For All does not need a login to work.</small></div></div><label className="button-primary">Bring in your first music<input hidden type="file" multiple accept="audio/*,.flac,.m4a,.mp3,.wav,.aiff" onChange={importFiles}/></label><button className="skip" onClick={close}>I’ll look around first</button></div></div>}
+function Onboarding({importFiles,close}:{importFiles:(e:ChangeEvent<HTMLInputElement>)=>void;close:()=>void}){
+ return <div className="onboarding"><div className="onboard-art"><div className="onboard-logo">M</div><span>music for all</span></div><div className="onboard-copy"><span className="kicker">A PRIVATE MUSIC PLAYER</span><h1>Your music.<br/><i>Nothing else.</i></h1><p>A focused home for the files you already own. No account, feed or recommendation engine required.</p><label className="onboard-button">Import your music<input hidden type="file" multiple accept="audio/*,.flac,.m4a,.mp3,.wav,.aiff" onChange={importFiles}/></label><button className="onboard-skip" onClick={close}>Look around first <Icon name="arrow" size={17}/></button><div className="onboard-foot"><span>LOCAL STORAGE</span><span>NO ACCOUNT</span><span>OPEN MUSIC</span></div></div></div>
+}
