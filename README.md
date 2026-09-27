@@ -1,113 +1,55 @@
 # Music For All
 
-A design-first, open-source iOS music player for music you own, music that is legally free to use, and services you already subscribe to.
+A design-first, local-first music player for the web.
 
-> Free software. Open music. Your library.
+Music For All is now a Progressive Web App rather than an App Store-only iOS project. Apple currently charges US$99/year for the Developer Program; a free Apple Account can build and test, but App Store distribution requires membership. citeturn0search0turn0search1
 
-Music For All is intentionally not a startup-shaped product. It is a design case study and a useful piece of software: no ads, no forced account, no engagement tricks, no fake “free music”, and no attempt to replace the services that own the catalogues.
+The web route removes that recurring distribution cost. GitHub Pages supports static sites from public repositories on GitHub Free, and Safari on iPhone can add a website to the Home Screen as a web app. citeturn0search6turn0search8
 
 ## Product thesis
 
-Most music players make one of two mistakes:
+Music For All should feel like a beautiful personal music shelf, not “Spotify but free”.
 
-- beautiful streaming-service clones that assume a paid catalogue;
-- technically capable local players that feel like file managers.
+- **Your Music** — audio you import and keep locally.
+- **Open Music** — openly licensed catalogue discovery; default downloads are restricted to Public Domain and CC0 records.
+- **Connected Music** — optional Apple Music / Spotify integrations, kept separate from owned files.
 
-Music For All sits between those worlds.
+Openverse is a discovery layer, not a blanket rights guarantee. Its documentation explicitly says licence information should be verified per work, so Music For All intentionally narrows the default downloadable set. citeturn2search0turn2search2
 
-Local music is first-class. Open music is discoverable and downloadable when its licence permits it. Connected services remain connected services.
+## Current stack
 
-## First principles
+Vite + React + TypeScript.
 
-1. Player before platform.
-2. Familiar, not derivative.
-3. Local-first.
-4. Legal by construction.
-5. No dark-pattern discovery.
-6. No account required for local playback.
-7. Open source adapters.
-8. Design is documented.
+- IndexedDB for local audio and library metadata.
+- HTML audio for playback.
+- Service worker + Web App Manifest for installability/offline shell.
+- GitHub Pages as the first public deployment target.
+- Vercel remains an optional future host if a server-side connector is needed.
 
-## Current design direction
+## Connected services
 
-Warm neutral canvas, dense but breathable typography, restrained accent colour, oversized album art, tactile controls, and a persistent mini-player.
+Apple Music can play through MusicKit on the Web, but Apple requires developer-token infrastructure for MusicKit integrations. Spotify supports browser authorization through OAuth 2.0 with PKCE; its 2026 developer changes also mean the connector needs explicit configuration and testing. These services are therefore adapters, not dependencies of the core player. citeturn1search4turn1search1turn1search8
 
-Primary navigation:
-- Library
-- Discover
-- Downloads
-- Settings
+## Design principles
 
-Source labels stay small. A user should know where a track came from without the source becoming louder than the music.
-
-## Sources
-
-Local files are imported through the iOS Files picker and stored in the app sandbox.
-
-The first intended open connector is Musopen. Its catalogue describes recordings as available to the public without copyright restrictions. Other sources will only be added when their individual licensing terms can be represented safely in metadata. citeturn0search2
-
-Creative Commons is not synonymous with “free”. CC BY requires attribution and CC BY-NC restricts commercial use, so the app uses licence-aware source metadata rather than a generic free-download flag. citeturn0search14
-
-Apple Music can be integrated with MusicKit for catalogue search and playback subject to Apple's authorisation and subscription model. Spotify's iOS SDK controls playback through the Spotify app and has platform restrictions. Neither source is treated as downloadable owned audio. citeturn0search1turn0search4
-
-## Build
-
-The repository uses XcodeGen so the Xcode project is generated rather than hand-maintained.
-
-1. Install Xcode 26 or newer.
-2. Install XcodeGen.
-3. Run xcodegen generate.
-4. Open MusicForAll.xcodeproj.
-5. Select an iOS simulator or device.
-6. Build and run.
-
-The first milestone uses mocked catalogue data so the visual system can be evaluated without network dependencies.
+- editorial, quiet, tactile
+- familiar interaction patterns
+- artwork as the emotional centre
+- provenance visible but subordinate
+- no social feed
+- no fake equalizers
+- no subscription bait
+- no catalogue content masquerading as owned audio
+- progressive enhancement over feature accumulation
 
 ## Roadmap
 
-### M0 — visual prototype
-- Design language
-- Library shell
-- Discover shell
-- Mini-player
-- Full player
-- Source model
-- Licence model
-
-### M1 — real local player
-- Files importer
-- AVFoundation playback engine
-- Metadata extraction
-- Background audio
-- Lock Screen / Control Center metadata
-- Queue persistence
-
-### M2 — open music
-- Musopen connector
-- Licence/provenance presentation
-- Download manager
-- Offline catalogue cache
-- Attribution display where required
-
-### M3 — connected libraries
-- MusicKit
-- Spotify App Remote
-- Jellyfin/Subsonic
-- Unified source search
-- Source-aware queue
-
-### M4 — product polish
-- CarPlay
-- Widgets
-- Siri/App Intents
-- Accessibility audit
-- Haptics and motion pass
-- App Store packaging
-
-## Distribution reality
-
-The app is free and open source. Apple App Store distribution is not currently free: Apple lists the Developer Program at US$99/year, with regional pricing and possible fee waivers. A free Apple developer account can test apps on personal devices but does not provide App Store distribution. citeturn0search5turn0search7
+1. Local import, persistence, playback, PWA install.
+2. Rights-aware open catalogue and verified download flow.
+3. Queue, playlists, Media Session and deeper offline behaviour.
+4. Optional connected-service adapters.
+5. Accessibility, performance, responsive polish and case-study documentation.
 
 ## License
 
-MIT. See LICENSE.
+MIT.
