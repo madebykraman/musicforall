@@ -71,8 +71,8 @@ export default function App(){
   <header className="masthead"><button className="brand" onClick={()=>go("home")}><span className="brand-mark">m</span><span>music for all</span></button><div className="masthead-center"><span className="status-dot"/><span>LOCAL / PRIVATE</span></div><button className="header-search" onClick={()=>go(tab==="explore"?"explore":"library")}><Icon name="search" size={18}/><span>Search</span></button></header>
   <aside className="desktop-nav"><span className="nav-caption">NAVIGATE</span>{NAV.map(([id,label,icon])=><button key={id} className={tab===id?"nav-link active":"nav-link"} onClick={()=>go(id)}><Icon name={icon} size={17}/><span>{label}</span></button>)}<div className="nav-note"><b>LOCAL FIRST</b><span>Your files stay on this device.</span></div></aside>
   <main>{tab==="home"&&<Home tracks={sorted} recent={recentTracks} featured={featured} favorites={favorites} play={play} fav={fav} importFiles={importFiles} go={go}/>}
-  {tab==="library"&&<Library tracks={sorted} favorites={favorites} sort={sort} setSort={setSort} play={play} fav={fav} remove={remove}/>}
-  {tab==="explore"&&<Explore query={search} setQuery={setSearch} search={searchOpen} searching={searching} results={open} play={play} download={download}/>}
+  {tab==="library"&&<Library tracks={sorted} favorites={favorites} sort={sort} setSort={setSort} play={play} remove={remove}/>}
+  {tab==="explore"&&<Explore query={search} setQuery={setSearch} search={()=>searchOpen(search)} searching={searching} results={open} play={play} download={download}/>}
   {tab==="settings"&&<Settings tracks={tracks} go={go} onboard={()=>setOnboard(true)}/>}</main>
   {selected&&<Mini track={selected} playing={playing} progress={progress} toggle={toggle} open={()=>setPlayer(true)} queue={()=>setQueueOpen(true)}/>}
   <nav className="mobile-nav">{NAV.map(([id,label,icon])=><button key={id} className={tab===id?"active":""} onClick={()=>go(id)}><Icon name={icon} size={18}/><span>{label}</span></button>)}</nav>
@@ -96,7 +96,7 @@ function Home({tracks,recent,featured,favorites,play,fav,importFiles,go}:{tracks
 
 function Shelf({title,items,play}:{title:string;items:StoredTrack[];play:(t:Track)=>void}){return <section className="shelf"><div className="section-head"><span>{title.toUpperCase()}</span><b>{items.length}</b></div><div className="shelf-grid">{items.map(t=><button className="shelf-card" key={t.id} onClick={()=>play(t)}><Artwork track={t} size="tile"/><b>{t.title}</b><small>{t.artist}</small></button>)}</div></section>}
 
-function Library({tracks,favorites,sort,setSort,play,fav,remove}:{tracks:StoredTrack[];favorites:Set<string>;sort:Sort;setSort:(s:Sort)=>void;play:(t:Track)=>void;fav:(id:string)=>void;remove:(t:StoredTrack)=>void}){
+function Library({tracks,favorites,sort,setSort,play,remove}:{tracks:StoredTrack[];favorites:Set<string>;sort:Sort;setSort:(s:Sort)=>void;play:(t:Track)=>void;fav:(id:string)=>void;remove:(t:StoredTrack)=>void}){
  const[view,setView]=useState<View>("songs"),[filter,setFilter]=useState<Filter>("all"),[query,setQuery]=useState("");
  const visible=useMemo(()=>{const q=query.trim().toLowerCase();return tracks.filter(t=>(filter==="all"||favorites.has(t.id))&&(!q||[t.title,t.artist,t.album].some(x=>x.toLowerCase().includes(q))))},[tracks,filter,query,favorites]);
  const albums=Array.from(new Map(visible.map(t=>[t.album,t])).values()),artists=Array.from(new Map(visible.map(t=>[t.artist,t])).values());
