@@ -3,6 +3,7 @@ import type {ChangeEvent,CSSProperties,ReactNode} from "react";
 import type {StoredTrack,Tab,Track} from "./types";
 import {deleteTrack,getBlob,listTracks,saveTrack} from "./lib/db";
 import {searchOpenMusic} from "./lib/openverse";
+import {parseBlob} from "music-metadata";
 
 type LibraryMode="songs"|"albums"|"artists";
 
@@ -45,6 +46,33 @@ function Artwork({track,size="normal"}:{track:Track;size?:"normal"|"large"|"card
       </div>;
 }
 
+async function readMetadata(file:File){
+  try{
+    const metadata=await parseBlob(file);
+    const picture=metadata.common.picture?.[0];
+    let artworkUrl:string|undefined;
+    if(picture){
+      let binary="";
+      const chunk=0x8000;
+      for(let i=0;i<picture.data.length;i+=chunk)binary+=String.fromCharCode(...picture.data.subarray(i,i+chunk));
+      artworkUrl="data:"+picture.format+";base64,"+btoa(binary);
+    }
+    return {
+      title:metadata.common.title?.trim()||file.name.replace(/\.[^.]+$/,""),
+      artist:metadata.common.artist?.trim()||"Unknown artist",
+      album:metadata.common.album?.trim()||"Unknown album",
+      duration:metadata.format.duration,
+      artworkUrl
+    };
+  }catch{
+    return {
+      title:file.name.replace(/\.[^.]+$/,""),
+      artist:"Unknown artist",
+      album:"Unknown album",
+      duration:await readDuration(file)
+    };
+  }
+}
 async function readDuration(file:File){
   const url=URL.createObjectURL(file);
   try{
@@ -158,12 +186,15 @@ export default function App(){
   }
 
   async function importFiles(e:ChangeEvent<HTMLInputElement>){
-    for(const file of [...(e.target.files||[])]){
-      const id=crypto.randomUUID(),blobId=crypto.randomUUID(),title=file.name.replace(/\.[^.]+$/,"");
-      const duration=await readDuration(file);
-      await saveTrack({id,blobId,title,artist:"Imported file",album:"Local library",source:"local",duration,addedAt:Date.now()},file);
+    const files=[...(e.target.files||[])];
+    if(!files.length)return;
+    setStatus("Reading "+files.length+" "+(files.length===1?"track":"tracks")+"…");
+    for(const file of files){
+      const id=crypto.randomUUID(),blobId=crypto.randomUUID();
+      const metadata=await readMetadata(file);
+      await saveTrack({id,blobId,title:metadata.title,artist:metadata.artist,album:metadata.album,source:"local",duration:metadata.duration,artworkUrl:metadata.artworkUrl,addedAt:Date.now()},file);
     }
-    setTracks(await listTracks());e.target.value="";setStatus("Added to your local library.");
+    setTracks(await listTracks());e.target.value="";setStatus("Added "+files.length+" "+(files.length===1?"track":"tracks")+" to your library.");
   }
 
   async function search(){
