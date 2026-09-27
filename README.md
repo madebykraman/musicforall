@@ -1,90 +1,89 @@
 # Music For All
 
-A design-first, local-first music shelf for the web.
+A private, local-first music shelf for the web.
 
-Music For All is a responsive web app rather than an App Store-only iOS project. The core experience is deliberately account-free: import music you already have, keep it on the device, and play it without sending the audio to Music For All.
+Music For All is built around a simple idea: bring the music you already have into a place that feels like yours.
 
-## Product thesis
+No account is required. Imported audio stays on the device. Open music discovery is separate and rights-aware.
 
-Music For All should feel like a beautiful personal music shelf, not “Spotify but free”.
+## Product
 
-- **Your Music** — audio you import and keep locally.
-- **Open Music** — openly licensed catalogue discovery; default downloads are restricted to Public Domain and CC0 records.
-- **Connected Music** — optional Apple Music / Spotify integrations, kept separate from owned files.
+The product has four spaces:
 
-Openverse is a discovery layer, not a blanket rights guarantee. Licence information is checked per work, so Music For All intentionally narrows the default downloadable set.
+- **Home** — your listening room, continue listening, recent additions and album shelf.
+- **Collection** — songs, albums, artists and favourites.
+- **Explore** — public-domain and CC0 discovery.
+- **Settings** — storage, installation and product information.
 
-## Current stack
+Offline files are part of the Collection rather than a separate destination.
 
-Vite + React + TypeScript.
+## Design
 
-- Origin Private File System (OPFS) for local audio bytes.
-- localStorage for small library metadata, favourites and recent-play markers.
-- HTML audio for playback.
-- Web App Manifest for install metadata.
-- No service-worker dependency for the core player.
-- No browser-side tag parser during import; filenames and audio metadata are used first for a fast, low-memory import path.
+The current interface is a zero-based redesign, not a restyle of the original prototype.
 
-The storage split is intentional. Audio files are large and belong in file storage; catalogue metadata is small and should not require IndexedDB transactions. A legacy IndexedDB migration remains only to recover libraries created by older builds.
+It uses an editorial archive language:
+- warm paper content surfaces
+- midnight navy player
+- electric-blue interaction accent
+- serif display typography
+- large editorial composition
+- thin structural rules
+- artwork-led shelves
+- dense catalogue rows
+- a separate listening environment
 
-## Reliability model
+There is no Liquid Glass, glassmorphism, backdrop blur, frosted navigation, translucent player or floating capsule system.
 
-Import is sequential. Each file is written to OPFS before its small metadata record is committed. If a metadata write fails, the newly written audio file is removed. A failed import does not replace the existing library.
+The first-run experience is a real onboarding flow explaining local storage, open music and the account-free model before inviting the person to import music.
 
-The app also retires the old service-worker cache and unregisters existing registrations on load. The player does not depend on a cached application shell.
+See DESIGN.md for the product model and UX decisions.
 
-This is especially deliberate for iPhone/iPad browsers. WebKit has documented IndexedDB connection-loss and page-reload issues, while OPFS is a first-class origin-private file storage API on Safari. The application therefore minimizes new IndexedDB usage rather than making it the centre of the product.
+## Storage
 
-## Interface direction
+Audio files are stored in Origin Private File System (OPFS). Small library metadata is stored separately.
 
-The interface is flat, editorial and content-first.
+The architecture intentionally avoids putting audio Blobs into IndexedDB. A legacy IndexedDB reader remains only to recover libraries created by older builds.
 
-- Music content is the visual centre.
-- Navigation and controls are simple functional surfaces.
-- No Liquid Glass.
-- No backdrop-filter.
-- No ambient blur fields.
-- No translucent floating navigation.
-- No decorative equalizers or audio visualisation.
-- Album artwork supplies colour; layout, borders and typography establish hierarchy.
-- Mobile navigation is a fixed, opaque utility bar.
-- The player is an opaque sheet with explicit controls and a visible queue.
+Import is sequential and lightweight:
+- native duration probing
+- filename-derived title/artist metadata
+- one file written at a time
+- no cover-art extraction during import
+- cleanup when a write fails
 
-## Information architecture
+The application does not depend on a service-worker cache for playback.
 
-**Library** — owned/imported music.
+## Features
 
-**Discover** — open music and rights-aware search.
-
-**Downloads** — files actually stored offline.
-
-**Settings** — install guidance, storage information and future connectors.
-
-## Player features
-
-- local playback
-- queue
-- previous/next
-- shuffle
-- repeat
-- seek
+- local MP3 / FLAC / M4A / WAV / AIFF import
+- persistent local playback
+- recently added
+- songs / albums / artists
 - favourites
-- Media Session integration
-- persistent local library metadata
-- storage usage reporting where supported
+- search and sorting
+- queue
+- shuffle and repeat
+- seek
+- Media Session compatibility
+- rights-aware open catalogue
+- Public Domain / CC0 download eligibility
+- responsive mobile and desktop UI
+- installable web app metadata
+
+## Open catalogue
+
+Openverse is used as a discovery layer.
+
+Music For All narrows the default keepable tier to Public Domain and CC0. Other open licences may require attribution or have additional restrictions, so discovery should never be treated as blanket download permission.
 
 ## Connected services
 
-Apple Music and Spotify remain adapters, not dependencies of the local player. Their authentication and playback requirements should never be allowed to destabilize the local library.
+Apple Music and Spotify are future adapters. They remain separate from local ownership and are not required for the core product.
 
-## Roadmap
+## Stack
 
-1. Local import, persistence and playback.
-2. Rights-aware open catalogue and verified download flow.
-3. Queue, favourites, sorting and deeper offline behaviour.
-4. Optional connected-service adapters.
-5. Accessibility, performance and case-study documentation.
+Vite · React · TypeScript · OPFS · localStorage · HTML Audio
 
 ## License
 
-MIT.
+MIT
