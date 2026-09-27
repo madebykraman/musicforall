@@ -64,3 +64,28 @@ Social feed, comments, follower counts, lyrics scraping, piracy-oriented sources
 Build a player that respects music ownership instead of pretending every catalogue is one database.
 
 The visual system is therefore a consequence of the product model, not decoration added after engineering.
+
+
+## Research signals
+
+Community discussions repeatedly surface the same friction: people want local/offline playback without ads or subscriptions, straightforward transfer from a computer, and a UI that feels better than utilitarian file-player interfaces. A recent iOS discussion specifically described VLC as functional but clunky and highlighted Wi-Fi transfer as an important workflow. citeturn3reddit61
+
+More recent discussions continue to separate the market into two camps: clean local players such as Doppler, and broader cloud/server players such as Evermusic and Flacbox. That is useful evidence for keeping the first release visually focused rather than turning every connector into a navigation destination. citeturn3reddit63turn3reddit65
+
+Third-party Apple Music discussions also show that users value alternative clients specifically for interface quality and library control, while complaints about boxiness, missing queue controls and over-dense layouts remain relevant. citeturn3reddit69
+
+The visual-design side of the research is deliberately treated as inspiration rather than evidence of usability. Current Behance case studies heavily favour dark streaming concepts, oversized artwork, gradients and Spotify-like patterns. citeturn3search0turn3search4turn3search6
+
+Music For All therefore takes a different visual position: light, editorial, native, tactile and quiet.
+
+## Open-source catalogue strategy
+
+Openverse is useful as a discovery layer because it indexes hundreds of millions of openly licensed images and audio works, but its own documentation explicitly warns that it does not verify the licensing status of individual works. citeturn2search0turn2search12
+
+Internet Archive exposes item-level rights and licence metadata through its metadata systems, which makes it technically interesting for a future connector, but item rights must still be evaluated individually. citeturn2search2turn2search6
+
+The product rule is therefore:
+
+**Open discovery can be broad. Download eligibility must be narrow.**
+
+The default one-tap download filter should initially admit only Public Domain and CC0 recordings. Other Creative Commons licences can be surfaced later with explicit licence and attribution UI.
