@@ -67,12 +67,10 @@ export default function App(){
 
 function Section({title,action,children}:{title:string;action?:string;children:ReactNode}){return <section className="shelf"><div className="shelf-head"><h2>{title}</h2>{action&&<button>{action}<span>›</span></button>}</div>{children}</section>}
 function Cards({tracks,play}:{tracks:StoredTrack[];play:(t:StoredTrack)=>void}){return <div className="rail">{tracks.map(t=><button className="music-card" key={t.id} onClick={()=>play(t)}><div className="card-art"><Art t={t}/><span className="card-play"><Icon n="play" s={17}/></span></div><b>{t.title}</b><small>{t.artist}</small></button>)}</div>}
-function QuickPicks({tracks,play}:{tracks:StoredTrack[];play:(t:StoredTrack)=>void}){return <div className="quick-grid">{tracks.slice(0,6).map(t=><button key={t.id} className="quick-pick" onClick={()=>play(t)}><Art t={t}/><span><b>{t.title}</b><small>{t.artist}</small></span><i><Icon n="play" s={15}/></i></button>)}</div>}
-
 function Home({tracks,recent,favorites,albums,artists,selected,playing,play,toggle,importMusic,explore,nav}:{tracks:StoredTrack[];recent:StoredTrack[];favorites:StoredTrack[];albums:StoredTrack[];artists:StoredTrack[];selected:StoredTrack|null;playing:boolean;play:(t:StoredTrack)=>void;toggle:()=>void;importMusic:()=>void;explore:()=>void;nav:(t:Tab)=>void}){
  const recentAdded=useMemo(()=>[...tracks].sort((a,b)=>b.addedAt-a.addedAt).slice(0,12),[tracks]);
  const featured=selected||recentAdded[0];
- const topArtists=useMemo(()=>{const m=new Map<string,StoredTrack>();for(const t of tracks)if(!m.has(t.artist))m.set(t.artist,t);return [...m.values()].slice(0,7)},[tracks]);
+ const topArtists=artists.slice(0,7);
  const quick=useMemo(()=>[...recent,...favorites,...recentAdded].filter((t,i,a)=>t&&a.findIndex(x=>x.id===t.id)===i).slice(0,6),[recent,favorites,recentAdded]);
  const topTracks=useMemo(()=>[...tracks].sort((a,b)=>Number(b.addedAt)-Number(a.addedAt)).slice(0,5),[tracks]);
  return <section className="home">
