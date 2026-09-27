@@ -2,9 +2,9 @@
 
 A design-first, local-first music player for the web.
 
-Music For All is now a Progressive Web App rather than an App Store-only iOS project. Apple currently charges US$99/year for the Developer Program; a free Apple Account can build and test, but App Store distribution requires membership. citeturn0search0turn0search1
+Music For All is now a Progressive Web App rather than an App Store-only iOS project. Apple currently charges US$99/year for the Developer Program; a free Apple Account can build and test, but App Store distribution requires membership.
 
-The web route removes that recurring distribution cost. GitHub Pages supports static sites from public repositories on GitHub Free, and Safari on iPhone can add a website to the Home Screen as a web app. citeturn0search6turn0search8
+The web route removes that recurring distribution cost. GitHub Pages supports static sites from public repositories on GitHub Free, and Safari on iPhone can add a website to the Home Screen as a web app.
 
 ## Product thesis
 
@@ -14,7 +14,7 @@ Music For All should feel like a beautiful personal music shelf, not “Spotify 
 - **Open Music** — openly licensed catalogue discovery; default downloads are restricted to Public Domain and CC0 records.
 - **Connected Music** — optional Apple Music / Spotify integrations, kept separate from owned files.
 
-Openverse is a discovery layer, not a blanket rights guarantee. Its documentation explicitly says licence information should be verified per work, so Music For All intentionally narrows the default downloadable set. citeturn2search0turn2search2
+Openverse is a discovery layer, not a blanket rights guarantee. Its documentation explicitly says licence information should be verified per work, so Music For All intentionally narrows the default downloadable set.
 
 ## Current stack
 
@@ -28,7 +28,7 @@ Vite + React + TypeScript.
 
 ## Connected services
 
-Apple Music can play through MusicKit on the Web, but Apple requires developer-token infrastructure for MusicKit integrations. Spotify supports browser authorization through OAuth 2.0 with PKCE; its 2026 developer changes also mean the connector needs explicit configuration and testing. These services are therefore adapters, not dependencies of the core player. citeturn1search4turn1search1turn1search8
+Apple Music can play through MusicKit on the Web, but Apple requires developer-token infrastructure for MusicKit integrations. Spotify supports browser authorization through OAuth 2.0 with PKCE; its 2026 developer changes also mean the connector needs explicit configuration and testing. These services are therefore adapters, not dependencies of the core player.
 
 ## Design principles
 
