@@ -67,7 +67,7 @@ export default function App(){
   <input ref={input} hidden type="file" accept="audio/*" multiple onChange={importFiles}/>
   <main>
    {tab==="home"&&<Home tracks={tracks} recent={recentTracks} favorites={favoriteTracks} selected={selected} playing={playing} play={play} toggle={toggle} importMusic={()=>input.current?.click()} explore={()=>nav("explore")} nav={nav}/>}
-   {tab==="library"&&<Library tracks={filtered} allTracks={tracks} selected={selected} playing={playing} query={query} setQuery={setQuery} toggle={toggle} fav={fav} favorites={favorites} importMusic={()=>input.current?.click()}/>}
+   {tab==="library"&&<Library tracks={filtered} allTracks={tracks} selected={selected} playing={playing} query={query} setQuery={setQuery} play={play} toggle={toggle} fav={fav} favorites={favorites} importMusic={()=>input.current?.click()}/>}
    {tab==="explore"&&<Explore query={openQuery} setQuery={setOpenQuery} search={searchOpen} results={results} busy={busy} keep={keep}/>}
    {tab==="settings"&&<Settings tracks={tracks} importMusic={()=>input.current?.click()}/>}
   </main>
@@ -103,7 +103,7 @@ function Home({tracks,recent,favorites,selected,playing,play,toggle,importMusic,
  </section>
 }
 
-function Library({tracks,allTracks,selected,playing,query,setQuery,toggle,fav,favorites:favIds,importMusic}:{tracks:StoredTrack[];allTracks:StoredTrack[];selected:StoredTrack|null;playing:boolean;query:string;setQuery:(s:string)=>void;toggle:()=>void;fav:(id:string)=>void;favorites:string[];importMusic:()=>void}){
+function Library({tracks,allTracks,selected,playing,query,setQuery,play,toggle,fav,favorites:favIds,importMusic}:{tracks:StoredTrack[];allTracks:StoredTrack[];selected:StoredTrack|null;playing:boolean;query:string;setQuery:(s:string)=>void;play:(t:StoredTrack)=>void;toggle:()=>void;fav:(id:string)=>void;favorites:string[];importMusic:()=>void}){
  const [view,setView]=useState<"songs"|"albums"|"artists">("songs");
  const albums=useMemo(()=>{const seen=new Set<string>();return allTracks.filter(t=>{const k=(t.album||"Local music")+"|"+(t.artist||"");if(seen.has(k))return false;seen.add(k);return true})},[allTracks]);
  const artists=useMemo(()=>{const seen=new Set<string>();return allTracks.filter(t=>{const k=t.artist||"Unknown artist";if(seen.has(k))return false;seen.add(k);return true})},[allTracks]);
