@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useRef,useState} from "react";
-import type {ChangeEvent,CSSProperties} from "react";
+import type {ChangeEvent,CSSProperties,ReactNode} from "react";
 import type {StoredTrack,Tab,Track} from "./types";
 import {deleteTrack,getBlob,listTracks,saveTrack} from "./lib/db";
 import {searchOpenMusic} from "./lib/openverse";
@@ -18,7 +18,7 @@ const DEMO:Track[]=[
 
 function Icon({name,size=18}:{name:string;size?:number}){
   const common={width:size,height:size,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"1.8",strokeLinecap:"round" as const,strokeLinejoin:"round" as const,ariaHidden:true};
-  const paths:Record<string,React.ReactNode>={
+  const paths:Record<string,ReactNode>={
     library:<><path d="M4 5.5h16v14H4z"/><path d="M8 3.5v4M16 3.5v4M4 9h16"/></>,
     compass:<><circle cx="12" cy="12" r="8.5"/><path d="m14.8 9.2-1.6 4-4 1.6 1.6-4z"/></>,
     download:<><path d="M12 3v11"/><path d="m7.5 9.5 4.5 4.5 4.5-4.5"/><path d="M5 19.5h14"/></>,
