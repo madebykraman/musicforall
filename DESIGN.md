@@ -1,91 +1,70 @@
-# Music For All — Design Case Study
+# Music For All — Design System
 
-## The problem
+## Reframe
 
-Music player is an overloaded category. Users already understand play, pause, queue, albums and search. The design opportunity is not to invent another interaction language. It is to remove friction around where music comes from and what the user can do with it.
-
-Central question:
-
-Can one music player make ownership, open culture and paid services feel like one coherent library without lying about what the app controls?
-
-## Competitive reading
-
-Doppler is a strong local-first precedent: offline playback, local storage, metadata editing, search and a restrained library experience. citeturn1search0
-
-Soor is a strong third-party Apple Music precedent: gesture-driven navigation, themes, widgets and library customisation while remaining recognisably iOS. citeturn1search1
-
-Marvis Pro demonstrates how a library can become an exploration interface through sorting, grouping and personalisation. citeturn0search12
-
-Amperfy and Finamp demonstrate the open-source/self-hosted model: users bring their own media and connect to servers such as Subsonic, Ampache and Jellyfin. citeturn0search10turn0search13
-
-VOX and Evermusic demonstrate the demand for source aggregation, but also the danger of feature-surface overload. citeturn1search4turn1search11
+The original implementation targeted a native iOS app. The distribution constraint changed the product vehicle: App Store distribution requires the paid Apple Developer Program. The new product is a responsive PWA that can live on an iPhone Home Screen without App Store publication. citeturn0search0turn0search8
 
 ## Visual thesis
 
-Avoid faux-neumorphism, excessive glass, giant gradients, decorative equalizers, social-feed patterns, AI music tropes and Spotify imitation.
+Warm editorial canvas. Near-black typography. One restrained burnt accent. Oversized artwork. Native-feeling controls. Sparse geometry. Generous vertical rhythm.
 
-Use a warm paper-like canvas, near-black typography, one restrained burnt accent, large album art, small provenance labels, sparse rounded geometry, generous vertical rhythm, system typography and SF Symbols.
+Recognition comes from restraint rather than novelty through decoration.
+
+Avoid:
+
+- Spotify imitation
+- giant neon gradients
+- faux-neumorphism
+- decorative equalizers
+- permanent black UI
+- excessive glassmorphism
+- social/feed mechanics
+- AI-music visual tropes
 
 ## Information architecture
 
-Library is the user's collection.
+**Library** — owned/imported music.
 
-Discover is the open catalogue. Its key interaction is not “free”; it is “what rights come with this recording?”
+**Discover** — open music and rights-aware search.
 
-Downloads represents files actually stored for offline use.
+**Downloads** — files actually stored offline.
 
-Settings contains sources and playback configuration so integrations do not compete with the user's library.
+**Settings** — installation, storage and future connectors.
+
+The distinction between *available to play* and *owned/stored locally* is foundational.
 
 ## Player hierarchy
 
-1. Artwork
-2. Track identity
-3. Progress
-4. Primary playback
-5. Queue and output
-6. Secondary metadata
+1. artwork
+2. track identity
+3. progress
+4. primary playback
+5. queue/output
+6. secondary metadata
 
 The player should feel like a quiet room around the music.
 
-## Legal model
+## Rights model
 
-A source is not automatically a licence.
+The default downloadable open tier is intentionally strict:
 
-Every open-catalogue item should carry source, recording identifier, creator, recording artist, licence, licence URL, attribution text, download permission, modification permission, commercial-use permission and provenance timestamp.
+- Public Domain
+- CC0
 
-The app must never convert “Creative Commons” into “free of restrictions”. Free Music Archive's own documentation shows why: CC BY requires attribution and CC BY-NC restricts commercial use. citeturn0search14
+Other Creative Commons licences can be discoverable later, but they must carry their attribution/use requirements and must not be represented as unrestricted. Openverse documents CC0 and PDM as distinct licence slugs and explicitly warns that it cannot guarantee source licence accuracy. citeturn2search2turn2search0
 
-## Deliberately absent from v1
+## Connected services
 
-Social feed, comments, follower counts, lyrics scraping, piracy-oriented sources, generic “download anything”, forced sign-in, ads, subscription requirements for local playback, and engagement-first autoplay.
+Apple Music: web playback is available through MusicKit on the Web, subject to Apple's developer-token/authentication requirements. citeturn1search4
 
-## Case-study framing
+Spotify: browser integrations should use OAuth PKCE; current 2026 developer changes make this a separately configured connector rather than something the core player should depend upon. citeturn1search1turn1search8
 
-Build a player that respects music ownership instead of pretending every catalogue is one database.
+## Case-study standard
 
-The visual system is therefore a consequence of the product model, not decoration added after engineering.
+Every feature must answer at least one:
 
+- Does it make music easier to keep?
+- Does it make music easier to understand?
+- Does it make the interface calmer?
 
-## Research signals
-
-Community discussions repeatedly surface the same friction: people want local/offline playback without ads or subscriptions, straightforward transfer from a computer, and a UI that feels better than utilitarian file-player interfaces. A recent iOS discussion specifically described VLC as functional but clunky and highlighted Wi-Fi transfer as an important workflow. citeturn3reddit61
-
-More recent discussions continue to separate the market into two camps: clean local players such as Doppler, and broader cloud/server players such as Evermusic and Flacbox. That is useful evidence for keeping the first release visually focused rather than turning every connector into a navigation destination. citeturn3reddit63turn3reddit65
-
-Third-party Apple Music discussions also show that users value alternative clients specifically for interface quality and library control, while complaints about boxiness, missing queue controls and over-dense layouts remain relevant. citeturn3reddit69
-
-The visual-design side of the research is deliberately treated as inspiration rather than evidence of usability. Current Behance case studies heavily favour dark streaming concepts, oversized artwork, gradients and Spotify-like patterns. citeturn3search0turn3search4turn3search6
-
-Music For All therefore takes a different visual position: light, editorial, native, tactile and quiet.
-
-## Open-source catalogue strategy
-
-Openverse is useful as a discovery layer because it indexes hundreds of millions of openly licensed images and audio works, but its own documentation explicitly warns that it does not verify the licensing status of individual works. citeturn2search0turn2search12
-
-Internet Archive exposes item-level rights and licence metadata through its metadata systems, which makes it technically interesting for a future connector, but item rights must still be evaluated individually. citeturn2search2turn2search6
-
-The product rule is therefore:
-
-**Open discovery can be broad. Download eligibility must be narrow.**
-
-The default one-tap download filter should initially admit only Public Domain and CC0 recordings. Other Creative Commons licences can be surfaced later with explicit licence and attribution UI.
+If not, it does not belong in v1.
