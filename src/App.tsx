@@ -1,6 +1,6 @@
 import {useEffect,useMemo,useRef,useState} from "react";
 import type {ChangeEvent,ReactNode} from "react";
-import type {StoredTrack,Tab,Track} from "./types";
+import type {StoredTrack,Tab} from "./types";
 import {deleteTrack,getBlob,listTracks,saveTrack} from "./lib/db";
 
 type RepeatMode="off"|"all"|"one";
@@ -8,7 +8,7 @@ type ViewMode="songs"|"albums"|"artists";
 
 const Icon=({n,s=20}:{n:string;s?:number})=>{
  const d:Record<string,string>={
-  home:"M3 10.5 12 3l9 7.5v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",search:"M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM16 16l5 5",library:"M4 5.5h16v13H4zM8 9h8M8 13h8M8 17h5",settings:"M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4",play:"M8 5v14l11-7z",pause:"M7 5h4v14H7zM13 5h4v14h-4z",next:"M5 5v14l9-7zM18 5v14",prev:"M19 5v14l-9-7zM6 5v14",heart:"M20.8 8.9c0 5.5-8.8 10.1-8.8 10.1S3.2 14.4 3.2 8.9A5 5 0 0 1 12 5.4a5 5 0 0 1 8.8 3.5",queue:"M4 6h11M4 12h11M4 18h7m5-3 4 3-4 3",plus:"M12 5v14M5 12h14",back:"m15 5-7 7 7 7",close:"M6 6l12 12M18 6 6 18",shuffle:"M4 7h3c4 0 5 10 10 10h3M4 17h3c1.5 0 2.5-1.2 3.3-2.5M17 4l3 3-3 3M17 14l3 3-3 3",repeat:"M17 2l3 3-3 3M4 5h16v6M7 22l-3-3 3-3M20 19H4v-6",more:"M12 5h.01M12 12h.01M12 19h.01",clock:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7v5l3 2",download:"M12 3v12m0 0 4-4m-4 4-4-4M5 21h14",trash:"M5 7h14m-9 4v6m4-6v6M9 7V4h6v3m-9 0 1 14h10l1-14"
+  home:"M3 10.5 12 3l9 7.5v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",search:"M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM16 16l5 5",library:"M4 5.5h16v13H4zM8 9h8M8 13h8M8 17h5",settings:"M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4",play:"M8 5v14l11-7z",pause:"M7 5h4v14H7zM13 5h4v14h-4z",next:"M5 5v14l9-7zM18 5v14",prev:"M19 5v14l-9-7zM6 5v14",heart:"M20.8 8.9c0 5.5-8.8 10.1-8.8 10.1S3.2 14.4 3.2 8.9A5 5 0 0 1 12 5.4a5 5 0 0 1 8.8 3.5",queue:"M4 6h11M4 12h11M4 18h7m5-3 4 3-4 3",plus:"M12 5v14M5 12h14",back:"m15 5-7 7 7 7",close:"M6 6l12 12M18 6 6 18",shuffle:"M4 7h3c4 0 5 10 10 10h3M4 17h3c1.5 0 2.5-1.2 3.3-2.5M17 4l3 3-3 3M17 14l3 3-3 3",repeat:"M17 2l3 3-3 3M4 5h16v6M7 22l-3-3 3-3M20 19H4v-6",more:"M12 5h.01M12 12h.01M12 19h.01",chevron:"m9 6 6 6-6 6",volume:"M4 10v4h4l5 4V6l-5 4H4m11 0a4 4 0 0 1 0 4m2-7a8 8 0 0 1 0 10",expand:"M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5",clock:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7v5l3 2",download:"M12 3v12m0 0 4-4m-4 4-4-4M5 21h14",trash:"M5 7h14m-9 4v6m4-6v6M9 7V4h6v3m-9 0 1 14h10l1-14"
  };
  return <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={d[n]||d.more}/></svg>;
 };
@@ -55,10 +55,10 @@ export default function App(){
   <main>{tab==="home"&&<Home tracks={tracks} recent={recentTracks} favorites={favoriteTracks} albums={albums} artists={artists} selected={selected} playing={playing} play={play} toggle={toggle} next={next} fav={fav} openQueue={()=>setQueueOpen(true)} openLibrary={()=>nav("library")} importMusic={()=>input.current?.click()} explore={()=>nav("explore")}/>}
    {tab==="library"&&<Library tracks={query==="__liked__"?favoriteTracks:filtered} allTracks={tracks} albums={albums} artists={artists} selected={selected} playing={playing} query={query==="__liked__"?"":query} setQuery={setQuery} play={play} toggle={toggle} fav={fav} favorites={favorites} addQueue={addQueue} remove={remove} importMusic={()=>input.current?.click()}/>}
    {tab==="explore"&&<SearchPage tracks={tracks} play={play} addQueue={addQueue}/>}
-   {tab==="settings"&&<Settings tracks={tracks} importMusic={()=>input.current?.click()}/>}</main>
+   {tab==="settings"&&<Settings tracks={tracks} importMusic={()=>input.current?.click()} clearLibrary={async()=>{if(!tracks.length)return;if(!window.confirm("Delete all local music from this device?"))return;setBusy(true);for(const t of tracks)await deleteTrack(t.id,t.blobId);audio.current.pause();setSelected(null);setPlaying(false);setQueue([]);setTracks([]);setFavorites([]);setRecent([]);setBusy(false);setMessage("Library cleared")}}/>}</main>
   {selected&&<Mini t={selected} playing={playing} toggle={toggle} open={()=>setFull(true)} queue={()=>setQueueOpen(true)}/>}
   <nav className="bottom-nav"><button className={tab==="home"?"on":""} onClick={()=>nav("home")}><Icon n="home"/><span>Home</span></button><button className={tab==="explore"?"on":""} onClick={()=>nav("explore")}><Icon n="search"/><span>Search</span></button><button className={tab==="library"?"on":""} onClick={()=>nav("library")}><Icon n="library"/><span>Library</span></button><button className={tab==="settings"?"on":""} onClick={()=>nav("settings")}><Icon n="settings"/><span>Settings</span></button></nav>
-  {queueOpen&&<Queue tracks={queue} selected={selected} play={play} close={()=>setQueueOpen(false)}/>} {message&&<div className="toast">{message}</div>} {busy&&<div className="loading"><span/></div>}
+  {queueOpen&&<Queue tracks={queue} play={play} remove={t=>setQueue(q=>q.filter(x=>x.id!==t.id))} close={()=>setQueueOpen(false)}/>} {message&&<div className="toast">{message}</div>} {busy&&<div className="loading"><span/></div>}
  </div>;
 }
 
