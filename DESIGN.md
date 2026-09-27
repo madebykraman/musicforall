@@ -6,20 +6,29 @@ The original implementation targeted a native iOS app. The distribution constrai
 
 ## Visual thesis
 
-Warm editorial canvas. Near-black typography. One restrained burnt accent. Oversized artwork. Native-feeling controls. Sparse geometry. Generous vertical rhythm.
+The interface is now intentionally closer to a serious personal music utility than a marketing site.
 
-Recognition comes from restraint rather than novelty through decoration.
+The primary visual layer is the music itself: artwork, titles, artists, albums and library structure. The functional layer carries the material treatment: navigation, search, mini-player, queue and transient controls.
 
-Avoid:
+The palette is warm neutral rather than decorative. Typography is compact and information-led. Album artwork provides the colour. Borders and spacing establish grouping instead of cards everywhere.
 
-- Spotify imitation
-- giant neon gradients
-- faux-neumorphism
+The design deliberately avoids:
+- glass cards around every piece of content
+- oversized landing-page typography
+- generic SaaS gradients
+- permanent dark UI
 - decorative equalizers
-- permanent black UI
-- excessive glassmorphism
-- social/feed mechanics
-- AI-music visual tropes
+- fake audio visualisation
+- excessive rounded containers
+- streaming-service imitation
+
+### Research translation
+
+Doppler's local-first model makes the library itself the product: import, albums, artists and recently added music are first-class rather than secondary to streaming discovery.
+
+Marvis demonstrates the value of flexible library presentation, grouping, sorting and dense but readable music metadata.
+
+Apple's current Human Interface Guidelines describe Liquid Glass as a functional layer for controls and navigation, and specifically caution against using it throughout the content layer. Music For All therefore uses translucency for the shell and playback controls while keeping the catalogue editorial and flat.
 
 ## Information architecture
 
