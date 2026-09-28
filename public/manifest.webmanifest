@@ -1,18 +1,12 @@
 {
-  "name": "Music For All",
-  "short_name": "Music For All",
-  "description": "A private, local-first music shelf",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#f1f0eb",
-  "theme_color": "#315cff",
-  "icons": [
-    {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
+  "name":"Music For All",
+  "short_name":"Music For All",
+  "description":"A private, local-first music player for music you already own.",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#090a0d",
+  "theme_color":"#090a0d",
+  "orientation":"portrait-primary",
+  "icons":[{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
 }
