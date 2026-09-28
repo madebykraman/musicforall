@@ -84,6 +84,6 @@ The application is an installable PWA. The service worker caches the app shell w
 
 ## Visual system
 
-Dark graphite surfaces, warm off-white controls, restrained amber accent, subtle violet/mint artwork fallbacks, dense shelves and high-contrast typography. Motion is used for navigation, artwork entry, hover states, queue presentation, progress and loading feedback.
+Dark graphite surfaces, warm off-white controls, restrained amber accent, subtle violet/mint artwork fallbacks, dense shelves and high-contrast Sora typography. Motion is used for navigation, artwork entry, hover states, queue presentation, progress and loading feedback.
 
 The design borrows interaction patterns from premium streaming products without using their branding, assets or catalogue data.
