@@ -118,3 +118,5 @@ export async function deleteTrack(id:string,blobId:string){
     db.close();
   }catch{undefined}
 }
+
+export async function updateTrackMetadata(id:string,patch:Partial<StoredTrack>){const current=readMeta();const next=current.map(t=>t.id===id?{...t,...patch}:t);writeMeta(next);return next}
