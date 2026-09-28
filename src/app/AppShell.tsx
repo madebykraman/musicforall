@@ -39,7 +39,7 @@ export function AppShell(){
      <div className="top-actions"><button aria-label="Search" className="mobile-search" onClick={openSearch}><Icon name="search" size={19}/></button></div>
    </header>
    <main className="muse-content">
-     {route==="home"&&<HomePage/>}
+     {route==="home"&&<HomePage onSearch={openSearch}/>}
      {route==="library"&&<LibraryPage/>}
      {route==="search"&&<SearchPage query={query} setQuery={setQuery}/>}
      {route==="settings"&&<SettingsPage navigate={navigate}/>}
