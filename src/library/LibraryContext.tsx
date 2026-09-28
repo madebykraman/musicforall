@@ -15,7 +15,8 @@ export function LibraryProvider({children}:{children:ReactNode}){
  const importFiles=async(e:ChangeEvent<HTMLInputElement>)=>{
    const fs=Array.from(e.target.files||[]);if(!fs.length)return;setBusy(true);setImportError(null);let imported=0;let skipped=0;let failed=0;
    for(const f of fs){
-     if(!f.type.startsWith("audio/")&&!/\.(mp3|flac|m4a|m4b|aac|wav|ogg|opus|aiff|aif|alac|mp2)$/i.test(f.name)){skipped++;continue}\n     if(tracks.some(t=>t.fileName===f.name&&t.fileSize===f.size)){skipped++;continue}
+     if(!f.type.startsWith("audio/")&&!/\.(mp3|flac|m4a|m4b|aac|wav|ogg|opus|aiff|aif|alac|mp2)$/i.test(f.name)){skipped++;continue}
+     if(tracks.some(t=>t.fileName===f.name&&t.fileSize===f.size)){skipped++;continue}
      try{
        const meta=parseName(f.name),id=uid(),blobId=uid(),probe=URL.createObjectURL(f),audio=new Audio(probe);
        const duration=await new Promise<number|undefined>(resolve=>{let done=false;const finish=()=>{if(done)return;done=true;const d=Number.isFinite(audio.duration)&&audio.duration>0?audio.duration:undefined;URL.revokeObjectURL(probe);audio.removeAttribute("src");resolve(d)};audio.onloadedmetadata=finish;audio.onerror=finish;window.setTimeout(finish,1500)});
