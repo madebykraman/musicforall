@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useRef,useState} from "react";
 import type {ChangeEvent,ReactNode} from "react";
 import type {StoredTrack,Track} from "./types";
-import {deleteTrack,getBlob,listTracks,saveTrack} from "./lib/db";
+import {deleteTrack,getBlob,listTracks,saveTrack,updateTrackMetadata} from "./lib/db";
 import {searchOpenMusic} from "./lib/openverse";
 import {parseBlob,selectCover} from "music-metadata";
 
@@ -43,6 +43,7 @@ export default function App(){
  const [screen,setScreen]=useState<Screen>("home"),[tracks,setTracks]=useState<StoredTrack[]>([]),[selected,setSelected]=useState<StoredTrack|null>(null),[playing,setPlaying]=useState(false),[full,setFull]=useState(false),[query,setQuery]=useState(""),[mode,setMode]=useState<"library"|"open">("library"),[openResults,setOpenResults]=useState<Track[]>([]),[busy,setBusy]=useState(false),[toast,setToast]=useState(""),[queue,setQueue]=useState<StoredTrack[]>([]),[queueOpen,setQueueOpen]=useState(false),[favorites,setFavorites]=useState<string[]>(()=>stored("mfa:favorites")),[recent,setRecent]=useState<string[]>(()=>stored("mfa:recent")),[shuffle,setShuffle]=useState(false),[repeat,setRepeat]=useState<Repeat>("off"),[time,setTime]=useState(0),[installable,setInstallable]=useState(false),[onboarded,setOnboarded]=useState(()=>localStorage.getItem("mfa:onboarded")==="1");
  const audio=useRef(new Audio()),input=useRef<HTMLInputElement>(null),install=useRef<InstallEvent|null>(null);
  useEffect(()=>{listTracks().then(setTracks)},[]);
+ useEffect(()=>{let cancelled=false;(async()=>{const missing=tracks.filter(t=>!t.artworkUrl).slice(0,16);for(const t of missing){try{const blob=await getBlob(t.blobId);let artworkUrl:string|undefined;if(blob){const meta=await parseBlob(blob);const cover=selectCover(meta.common.picture);if(cover)artworkUrl=await pictureData(cover);if(!artworkUrl)artworkUrl=await lookupArtwork(t.title,t.artist)}else artworkUrl=await lookupArtwork(t.title,t.artist);if(artworkUrl&&!cancelled){await updateTrackMetadata(t.id,{artworkUrl});setTracks(await listTracks())}}catch{}}})();return()=>{cancelled=true}},[tracks.length]);
  useEffect(()=>localStorage.setItem("mfa:favorites",JSON.stringify(favorites)),[favorites]);
  useEffect(()=>localStorage.setItem("mfa:recent",JSON.stringify(recent)),[recent]);
  useEffect(()=>{if(!toast)return;const x=setTimeout(()=>setToast(""),2200);return()=>clearTimeout(x)},[toast]);
