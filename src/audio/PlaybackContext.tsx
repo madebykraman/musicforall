@@ -4,14 +4,14 @@ import {getBlob,updateTrackMetadata,useLibrary} from "../library/LibraryContext"
 import {MuseflixAudioEngine,DEFAULT_EQUALIZER,type EqualizerState} from "../lib/equalizer";
 
 type Repeat="off"|"all"|"one";
-type PlaybackValue={current:StoredTrack|null;playing:boolean;time:number;queue:StoredTrack[];shuffle:boolean;repeat:Repeat;sleepTimer:number|null;error:string|null;toggle:()=>Promise<void>;play:(t:StoredTrack,reset?:boolean)=>Promise<void>;next:()=>Promise<void>;previous:()=>Promise<void>;seek:(n:number)=>void;setShuffle:(v:boolean)=>void;cycleRepeat:()=>void;cycleSleepTimer:()=>void;setEqualizer:(state:EqualizerState)=>void;openQueue:()=>void;closeQueue:()=>void;queueOpen:boolean};
+type PlaybackValue={current:StoredTrack|null;playing:boolean;time:number;queue:StoredTrack[];shuffle:boolean;repeat:Repeat;sleepTimer:number|null;error:string|null;autoplay:boolean;toggle:()=>Promise<void>;play:(t:StoredTrack,reset?:boolean)=>Promise<void>;next:()=>Promise<void>;previous:()=>Promise<void>;seek:(n:number)=>void;setShuffle:(v:boolean)=>void;cycleRepeat:()=>void;cycleSleepTimer:()=>void;setEqualizer:(state:EqualizerState)=>void;setAutoplay:(v:boolean)=>void;openQueue:()=>void;closeQueue:()=>void;queueOpen:boolean};
 
 const C=createContext<PlaybackValue|null>(null);
 const mediaSession=()=>("mediaSession" in navigator ? navigator.mediaSession : null);
 
 export function PlaybackProvider({children}:{children:ReactNode}){
  const{ordered,refresh}=useLibrary();
- const[current,setCurrent]=useState<StoredTrack|null>(null),[playing,setPlaying]=useState(false),[time,setTime]=useState(0),[queue,setQueue]=useState<StoredTrack[]>([]),[shuffle,setShuffle]=useState(false),[repeat,setRepeat]=useState<Repeat>("off"),[sleepTimer,setSleepTimer]=useState<number|null>(null),[error,setError]=useState<string|null>(null),[queueOpen,setQueueOpen]=useState(false);
+ const[current,setCurrent]=useState<StoredTrack|null>(null),[playing,setPlaying]=useState(false),[time,setTime]=useState(0),[queue,setQueue]=useState<StoredTrack[]>([]),[shuffle,setShuffle]=useState(false),[repeat,setRepeat]=useState<Repeat>("off"),[sleepTimer,setSleepTimer]=useState<number|null>(null),[error,setError]=useState<string|null>(null),[queueOpen,setQueueOpen]=useState(false),[autoplay,setAutoplayState]=useState(()=>localStorage.getItem("mfa:autoplay")!=="0");
  const audio=useRef(new Audio());const engine=useRef(new MuseflixAudioEngine());const engineReady=useRef(false);const url=useRef<string|null>(null);const eq=useRef<EqualizerState>(DEFAULT_EQUALIZER);
 
  useEffect(()=>{const a=audio.current;a.preload="auto";a.setAttribute("playsinline","true");a.setAttribute("webkit-playsinline","true");try{const x=JSON.parse(localStorage.getItem("mfa:eq")||"null");if(x&&Array.isArray(x.bands))eq.current=x}catch{}return()=>{if(url.current)URL.revokeObjectURL(url.current);a.pause();a.removeAttribute("src");}},[]);
@@ -22,12 +22,8 @@ export function PlaybackProvider({children}:{children:ReactNode}){
    if(!t.blobId){setError("This track has no local audio file.");return}
    try{
      const blob=await getBlob(t.blobId);if(!blob){setError("This track is no longer available on this device.");return}
-     const a=audio.current;
-     a.pause();
-     if(url.current)URL.revokeObjectURL(url.current);
-     url.current=URL.createObjectURL(blob);
-     a.src=url.current;a.load();
-     setCurrent(t);setTime(0);
+     const a=audio.current;a.pause();if(url.current)URL.revokeObjectURL(url.current);
+     url.current=URL.createObjectURL(blob);a.src=url.current;a.load();setCurrent(t);setTime(0);
      if(reset){const i=ordered.findIndex(x=>x.id===t.id);setQueue(i>=0?ordered.slice(i+1):[])}
      setQueue(q=>q.filter(x=>x.id!==t.id));setRecent(t.id);
      void updateTrackMetadata(t.id,{playCount:(t.playCount||0)+1}).then(()=>refresh()).catch(()=>{});
@@ -57,11 +53,11 @@ export function PlaybackProvider({children}:{children:ReactNode}){
    const onPlay=()=>{setPlaying(true);const m=mediaSession();if(m)m.playbackState="playing"};
    const onPause=()=>{setPlaying(false);const m=mediaSession();if(m)m.playbackState="paused"};
    const onTime=()=>setTime(Number.isFinite(a.currentTime)?a.currentTime:0);
-   const onEnd=()=>void next();
+   const onEnd=()=>{if(autoplay)void next();else setPlaying(false)};
    const onError=()=>{setPlaying(false);setError("The audio file could not be decoded by this browser.")};
    a.addEventListener("play",onPlay);a.addEventListener("pause",onPause);a.addEventListener("timeupdate",onTime);a.addEventListener("ended",onEnd);a.addEventListener("error",onError);
    return()=>{a.removeEventListener("play",onPlay);a.removeEventListener("pause",onPause);a.removeEventListener("timeupdate",onTime);a.removeEventListener("ended",onEnd);a.removeEventListener("error",onError)};
- },[next]);
+ },[next,autoplay]);
 
  useEffect(()=>{
    const m=mediaSession();if(!m)return;
@@ -70,9 +66,7 @@ export function PlaybackProvider({children}:{children:ReactNode}){
  },[next,previous]);
 
  useEffect(()=>{const m=mediaSession();if(!m||!current)return;try{m.metadata=new MediaMetadata({title:current.title,artist:current.artist,album:current.album||"Museflix",artwork:current.artworkUrl?[{src:current.artworkUrl,sizes:"512x512"}]:[]})}catch{}},[current]);
-
  useEffect(()=>{const m=mediaSession();if(!m||!current||!Number.isFinite(current.duration)||!current.duration)return;try{m.setPositionState({duration:current.duration,position:Math.min(time,current.duration),playbackRate:audio.current.playbackRate})}catch{}},[current,time]);
-
  useEffect(()=>{if(sleepTimer===null)return;const id=window.setInterval(()=>setSleepTimer(v=>{if(v===null)return null;if(v<=1){audio.current.pause();return null}return v-1}),1000);return()=>window.clearInterval(id)},[sleepTimer]);
 
  const toggle=useCallback(async()=>{setError(null);if(!current){if(ordered[0])await play(ordered[0]);return}if(audio.current.paused){try{if(engineReady.current)await engine.current.resume(audio.current);await audio.current.play()}catch{setError("Playback was blocked by the browser. Tap Play again.")}}else audio.current.pause()},[current,ordered,play]);
@@ -80,7 +74,8 @@ export function PlaybackProvider({children}:{children:ReactNode}){
  const cycleRepeat=()=>setRepeat(v=>v==="off"?"all":v==="all"?"one":"off");
  const cycleSleepTimer=()=>setSleepTimer(v=>v===null?600:v===600?1200:v===1200?1800:v===1800?3600:null);
  const setEqualizer=(state:EqualizerState)=>{eq.current=state;localStorage.setItem("mfa:eq",JSON.stringify(state));try{engine.current.setState(state)}catch{}};
- const value=useMemo(()=>({current,playing,time,queue,shuffle,repeat,sleepTimer,error,toggle,play,next,previous,seek,setShuffle,cycleRepeat,cycleSleepTimer,setEqualizer,openQueue:()=>setQueueOpen(true),closeQueue:()=>setQueueOpen(false),queueOpen}),[current,playing,time,queue,shuffle,repeat,sleepTimer,error,toggle,play,next,previous,queueOpen]);
+ const setAutoplay=(v:boolean)=>{setAutoplayState(v);localStorage.setItem("mfa:autoplay",v?"1":"0")};
+ const value=useMemo(()=>({current,playing,time,queue,shuffle,repeat,sleepTimer,error,autoplay,toggle,play,next,previous,seek,setShuffle,cycleRepeat,cycleSleepTimer,setEqualizer,setAutoplay,openQueue:()=>setQueueOpen(true),closeQueue:()=>setQueueOpen(false),queueOpen}),[current,playing,time,queue,shuffle,repeat,sleepTimer,error,autoplay,toggle,play,next,previous,queueOpen]);
  return <C.Provider value={value}>{children}</C.Provider>
 }
 export function usePlayback(){const v=useContext(C);if(!v)throw new Error("usePlayback must be used inside PlaybackProvider");return v}
