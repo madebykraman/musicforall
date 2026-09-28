@@ -1,0 +1,2 @@
+export type Route="home"|"library"|"search"|"playlists"|"settings"|"equalizer";
+export const routes:{id:Route;label:string;icon:string}[]=[{id:"home",label:"Home",icon:"home"},{id:"library",label:"Library",icon:"library"},{id:"search",label:"Search",icon:"search"},{id:"playlists",label:"Playlists",icon:"playlist"},{id:"settings",label:"Settings",icon:"settings"}];

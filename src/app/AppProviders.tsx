@@ -1,0 +1,1 @@
+import type {ReactNode} from "react";import {LibraryProvider} from "../library/LibraryContext";import {PlaybackProvider} from "../audio/PlaybackContext";export function AppProviders({children}:{children:ReactNode}){return <LibraryProvider><PlaybackProvider>{children}</PlaybackProvider></LibraryProvider>}
