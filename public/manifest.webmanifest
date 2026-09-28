@@ -1,7 +1,7 @@
 {
-  "name":"Music For All",
-  "short_name":"Music For All",
-  "description":"A private, local-first music player for music you already own.",
+  "name":"Musicflix",
+  "short_name":"Musicflix",
+  "description":"A local-first music player for your own music.",
   "start_url":"./",
   "scope":"./",
   "display":"standalone",
