@@ -97,3 +97,33 @@ body{background:#070912;background-image:radial-gradient(900px 520px at 74% -12%
 @media(max-width:900px){.library-page>.page-heading,.library-page>.library-tabs,.library-page>.library-list,.library-page>.entity-grid,.library-page>.folder-grid{display:none}.mobile-library{display:block}.library-page{max-width:none}}
 
 .import-error{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);z-index:501;max-width:min(92vw,520px);padding:9px 12px;border:1px solid #ff4f8a55;border-radius:999px;background:rgba(28,12,25,.97);color:#ffc1d7;font:9px var(--mono);box-shadow:0 14px 45px #0009}.import-error b{margin-left:8px;color:#fff}.import-error:hover{background:#2b1027}@media(max-width:900px){.import-error{bottom:136px}}\n.mobile-library-back{display:flex;align-items:center;gap:6px;margin:14px 0 10px;color:var(--purple2);font:8px var(--mono)}.mobile-library-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:8px;background:#27213d;color:#b98cff}.mobile-folder-grid button{cursor:pointer}.full-device-indicator{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:#aaa2b5}.home-page button:disabled{cursor:default;opacity:.92}.home-page button:disabled .muse-artwork{filter:saturate(.82)}
+/* === MUSEFLIX MOBILE DEVICE OVERRIDE ===
+   Some Android browsers expose a desktop-sized CSS viewport even on a
+   portrait handset. Pointer/hover detection keeps the mobile composition
+   intact in that case without changing desktop/touch laptops.
+*/
+@media (pointer: coarse) and (hover: none) and (max-width: 1200px){
+  .muse-sidebar{display:none!important}
+  .muse-topbar{left:0!important;right:0!important;height:56px;padding:0 14px!important}
+  .muse-topbar .top-nav-arrows{display:none!important}
+  .muse-topbar label.top-search{display:none!important}
+  .mobile-brand{display:flex!important;align-items:center;gap:8px}
+  .top-actions{margin-left:auto!important;gap:8px}
+  .top-actions .mobile-search{display:grid!important;place-items:center;width:32px;height:32px}
+  .top-actions .profile-dot{display:none!important}
+  .muse-content{margin-left:0!important;width:100%!important;max-width:none!important;padding:72px 22px 126px!important}
+  .home-desktop{display:none!important}
+  .home-mobile{display:block!important}
+  .mobile-library{display:block!important}
+  .library-page>.page-heading,.library-page>.segmented,.library-page>.library-list,.library-page>.entity-grid{display:none!important}
+  .muse-bottom-nav{display:grid!important;left:15px!important;right:15px!important;bottom:8px!important}
+  .muse-player-dock{left:15px!important;right:15px!important;bottom:74px!important}
+  .page{width:100%;max-width:none}
+  .muse-full-player{padding:17px 13px 32px}
+  .muse-full-player main{display:block;width:100%;margin:22px auto 0}
+  .muse-full-player .lyrics-panel{display:none}
+  .full-song-head{align-items:center;margin:0 8px 18px}
+  .full-song-head h1{font-size:34px}
+  .full-main>.muse-artwork{width:min(340px,88vw);height:min(340px,88vw)}
+  .full-dock{left:8px;right:8px;bottom:73px}
+}
