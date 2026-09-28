@@ -27,12 +27,13 @@ sliders:"M4 7h16M4 17h16M8 4v6M16 14v6",folder:"M3 6h7l2 2h9v10H3z",monitor:"M4 
 const Icon=({name,size=20}:{name:string;size?:number})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={PATHS[name]||PATHS.more}/></svg>;
 const Art=({track,large=false}:{track?:Track;large?:boolean})=>{
  const seed=(track?.title||"Music").split("").reduce((a,c)=>a+c.charCodeAt(0),0)%12;
- return <div className={"art art-"+seed+(large?" art-large":"")}>{track?.artworkUrl?<img src={track.artworkUrl} alt="" loading="lazy"/>:<><Icon name="music" size={large?62:30}/><span/></>}</div>;
+ return <div className={"art art-"+seed+(large?" art-large":"")}><Icon name="music" size={large?62:30}/><span/>{track?.artworkUrl&&<img src={track.artworkUrl} alt="" loading="lazy" decoding="async" onError={e=>{e.currentTarget.style.display="none"}}/>}</div>;
 };
 const fmt=(n=0)=>Number.isFinite(n)&&n>=0?Math.floor(n/60)+":"+String(Math.floor(n%60)).padStart(2,"0"):"—";
 const uid=()=>crypto.randomUUID?.()||String(Date.now()+Math.random());
 const stored=(k:string)=>{try{const x=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(x)?x:[]}catch{return[]}};
 const AUDIO_ACCEPT="audio/*,.mp3,.flac,.m4a,.m4b,.aac,.wav,.ogg,.opus,.aiff,.aif,.alac,.mp2";
+function parseName(name:string){const base=name.replace(/\.[^.]+$/,"").replace(/[_]+/g," ").replace(/\s+/g," ").trim();const parts=base.split(/\s+-\s+/);if(parts.length>=2){return{artist:parts[0].trim()||"Unknown Artist",title:parts.slice(1).join(" - ").trim()||base}}return{artist:"Unknown Artist",title:base||"Untitled"}}
 async function lookupArtwork(title:string,artist:string){try{const q=encodeURIComponent(`${title} ${artist}`);const r=await fetch(`https://itunes.apple.com/search?term=${q}&entity=song&limit=6`);if(!r.ok)return undefined;const data=await r.json() as {results?:Array<{trackName?:string;artistName?:string;artworkUrl100?:string}>};const rows=data.results||[];const norm=(x:string)=>x.toLowerCase().replace(/[^a-z0-9]+/g," ").trim();const exact=rows.find(x=>norm(x.trackName||"")===norm(title)&&norm(x.artistName||"")===norm(artist))||rows[0];return exact?.artworkUrl100?.replace("100x100","600x600")}catch{return undefined}}
 
 function readAudioMetadata(file:File){const fallback=parseName(file.name);return{title:fallback.title,artist:fallback.artist,album:"Local Music"}}
