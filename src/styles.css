@@ -211,3 +211,4 @@ main{max-width:none;padding:0 34px 42px 246px}
   .settings-danger button{margin-top:12px}
   .player-art{width:min(76vw,330px)}
 }
+.art>svg{position:relative;z-index:1;opacity:.46}.art.large>svg{opacity:.34;stroke-width:1.35}
