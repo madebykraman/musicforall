@@ -39,7 +39,46 @@ function u32(b:Uint8Array,o:number){return ((b[o]<<24)>>>0)|(b[o+1]<<16)|(b[o+2]
 function synchsafe(b:Uint8Array,o:number){return (b[o]&127)*2097152+(b[o+1]&127)*16384+(b[o+2]&127)*128+(b[o+3]&127)}
 function zeroTerminated(b:Uint8Array,start:number,wide=false){if(wide){for(let i=start;i+1<b.length;i+=2)if(b[i]===0&&b[i+1]===0)return i;return b.length}for(let i=start;i<b.length;i++)if(b[i]===0)return i;return b.length}
 function parseId3(b:Uint8Array){if(b.length<10||bytesText(b.slice(0,3),"latin1")!=="ID3")return{};const version=b[3],limit=Math.min(b.length,10+(version>=4?synchsafe(b,6):u32(b,6)));let pos=10,title="",artist="",album="",artworkUrl:string|undefined;while(pos+10<=limit){const id=bytesText(b.slice(pos,pos+4),"latin1");if(!id||/^\\0+$/.test(id))break;const size=version>=4?synchsafe(b,pos+4):u32(b,pos+4);if(!size||pos+10+size>limit)break;const data=b.slice(pos+10,pos+10+size);if(id==="TIT2"||id==="TPE1"||id==="TALB"){const enc=data[0];const text=bytesText(data.slice(1),enc===1||enc===2?"utf-16":enc===3?"utf-8":"latin1");if(id==="TIT2")title=text;if(id==="TPE1")artist=text;if(id==="TALB")album=text}else if(id==="APIC"&&data.length>4){const enc=data[0];const mimeEnd=zeroTerminated(data,1);const mime=bytesText(data.slice(1,mimeEnd),"latin1")||"image/jpeg";const type=data[mimeEnd+1];const descStart=mimeEnd+2;const descEnd=zeroTerminated(data,descStart,enc===1||enc===2);const imageStart=(enc===1||enc===2)?descEnd+2:descEnd+1;if(type===3||!artworkUrl){const image=data.slice(imageStart);if(image.length)artworkUrl=URL.createObjectURL(new Blob([new Uint8Array(image)],{type:mime==="-->"?"image/jpeg":mime}))}}pos+=10+size}if(!title&&!artist&&!album&&b.length>=128&&bytesText(b.slice(b.length-128,b.length-125),"latin1")==="TAG"){const tag=b.slice(b.length-128);title=bytesText(tag.slice(3,33),"latin1");artist=bytesText(tag.slice(33,63),"latin1");album=bytesText(tag.slice(63,93),"latin1")}return{title:title||undefined,artist:artist||undefined,album:album||undefined,artworkUrl}}
-function parseFlac(b:Uint8Array){if(b.length<4||bytesText(b.slice(0,4),"latin1")!=="fLaC")return{};let pos=4,title="",artist="",album="",artworkUrl:string|undefined;while(pos+4<=b.length){const head=b[pos],type=head&127,len=(b[pos+1]<<16)|(b[pos+2]<<8)|b[pos+3];const start=pos+4,end=Math.min(b.length,start+len);if(end>start){const block=b.slice(start,end);if(type===4&&block.length>=8){let p=0;const vendorLen=u32(block,p);p+=4+vendorLen;if(p+4<=block.length){const count=u32(block,p);p+=4;for(let i=0;i<count&&p+4<=block.length;i++){const n=u32(block,p);p+=4;const s=bytesText(block.slice(p,p+n),"utf-8");p+=n;const eq=s.indexOf("=");if(eq>0){const k=s.slice(0,eq).toUpperCase(),v=s.slice(eq+1);if(k==="TITLE"&&!title)title=v;if(k==="ARTIST"&&!artist)artist=v;if(k==="ALBUM"&&!album)album=v}}}}}else if(type===6&&block.length>=32){let p=0;p+=4;const mimeLen=u32(block,p);p+=4;const mime=bytesText(block.slice(p,p+mimeLen),"latin1");p+=mimeLen;const descLen=u32(block,p);p+=4+descLen+16;const dataLen=u32(block,p);p+=4;const image=block.slice(p,p+dataLen);if(image.length&&mime!=="-->")artworkUrl=URL.createObjectURL(new Blob([new Uint8Array(image)],{type:mime||"image/jpeg"}))}}pos=end;if(head&128)break}return{title:title||undefined,artist:artist||undefined,album:album||undefined,artworkUrl}}
+function parseFlac(b:Uint8Array){
+ if(b.length<4||bytesText(b.slice(0,4),"latin1")!=="fLaC")return{};
+ let pos=4,title="",artist="",album="",artworkUrl:string|undefined;
+ while(pos+4<=b.length){
+  const head=b[pos],type=head&127,len=(b[pos+1]<<16)|(b[pos+2]<<8)|b[pos+3];
+  const start=pos+4,end=Math.min(b.length,start+len);
+  if(end>start){
+   const block=b.slice(start,end);
+   if(type===4&&block.length>=8){
+    let p=0;const vendorLen=u32(block,p);p+=4+vendorLen;
+    if(p+4<=block.length){
+     const count=u32(block,p);p+=4;
+     for(let i=0;i<count&&p+4<=block.length;i++){
+      const n=u32(block,p);p+=4;
+      const s=bytesText(block.slice(p,p+n),"utf-8");p+=n;
+      const eq=s.indexOf("=");
+      if(eq>0){
+       const k=s.slice(0,eq).toUpperCase(),v=s.slice(eq+1);
+       if(k==="TITLE"&&!title)title=v;
+       if(k==="ARTIST"&&!artist)artist=v;
+       if(k==="ALBUM"&&!album)album=v;
+      }
+     }
+    }
+   }
+   if(type===6&&block.length>=32){
+    let p=4;
+    const mimeLen=u32(block,p);p+=4;
+    const mime=bytesText(block.slice(p,p+mimeLen),"latin1");p+=mimeLen;
+    const descLen=u32(block,p);p+=4+descLen+16;
+    const dataLen=u32(block,p);p+=4;
+    const image=block.slice(p,p+dataLen);
+    if(image.length&&mime!=="-->")artworkUrl=URL.createObjectURL(new Blob([new Uint8Array(image)],{type:mime||"image/jpeg"}));
+   }
+  }
+  pos=end;
+  if(head&128)break;
+ }
+ return{title:title||undefined,artist:artist||undefined,album:album||undefined,artworkUrl};
+}
 async function readAudioMetadata(file:File){const fallback=parseName(file.name);try{const bytes=new Uint8Array(await file.arrayBuffer());const parsed=bytes.slice(0,4).every((v,i)=>v===new Uint8Array([0x66,0x4c,0x61,0x43])[i])?parseFlac(bytes):parseId3(bytes);const title=parsed.title||fallback.title;const artist=parsed.artist||fallback.artist;const artworkUrl=parsed.artworkUrl||await lookupArtwork(title,artist);return{title,artist,album:parsed.album||"Local Music",artworkUrl}}catch{return{title:fallback.title,artist:fallback.artist,album:"Local Music",artworkUrl:await lookupArtwork(fallback.title,fallback.artist)}}}
 
 export default function App(){
