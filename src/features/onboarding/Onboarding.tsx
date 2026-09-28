@@ -49,7 +49,7 @@ export function Onboarding({onComplete}:{onComplete:()=>void}){
           {SERVICES.map(([title,sub])=><div className="connector-row" key={title}><span>{title}</span><small>{sub}</small><b>SETUP REQUIRED</b></div>)}
           <p>These services need their OAuth credentials and redirect configuration before Museflix can sign in to them. This panel is intentionally not pretending a connection exists.</p>
         </div>}
-        {notice&&<div className="onboarding-notice">{notice}</div>}
+        
         <button className="onboarding-finish" onClick={finish}>Enter Museflix <Icon name="arrow" size={14}/></button>
         <button className="onboarding-secondary" onClick={finish}>I'll sort the music out later</button>
       </section>}
