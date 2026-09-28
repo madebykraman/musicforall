@@ -33,7 +33,6 @@ export function SettingsPage({navigate}:{navigate:(r:Route)=>void}){
    <section className="settings-group">
     <header>PERSONALISATION</header>
     <div className="settings-name"><div><strong>What should Museflix call you?</strong><small>Optional. This only changes the local greeting.</small></div><div className="settings-name-edit"><input maxLength={32} value={name} onChange={e=>setName(e.target.value)} placeholder="Anonymous is fine"/><button onClick={saveName} disabled={name===savedName}>Save</button></div></div>
-    <div className="settings-fixed"><span>Theme</span><b>Dark</b></div>
    </section>
 
    <section className="settings-group">
