@@ -8,7 +8,7 @@ type ViewMode="songs"|"albums"|"artists";
 
 const Icon=({n,s=20}:{n:string;s?:number})=>{
  const d:Record<string,string>={
-  home:"M3 10.5 12 3l9 7.5v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",search:"M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM16 16l5 5",library:"M4 5.5h16v13H4zM8 9h8M8 13h8M8 17h5",settings:"M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4",play:"M8 5v14l11-7z",pause:"M7 5h4v14H7zM13 5h4v14h-4z",next:"M5 5v14l9-7zM18 5v14",prev:"M19 5v14l-9-7zM6 5v14",heart:"M20.8 8.9c0 5.5-8.8 10.1-8.8 10.1S3.2 14.4 3.2 8.9A5 5 0 0 1 12 5.4a5 5 0 0 1 8.8 3.5",queue:"M4 6h11M4 12h11M4 18h7m5-3 4 3-4 3",plus:"M12 5v14M5 12h14",back:"m15 5-7 7 7 7",close:"M6 6l12 12M18 6 6 18",shuffle:"M4 7h3c4 0 5 10 10 10h3M4 17h3c1.5 0 2.5-1.2 3.3-2.5M17 4l3 3-3 3M17 14l3 3-3 3",repeat:"M17 2l3 3-3 3M4 5h16v6M7 22l-3-3 3-3M20 19H4v-6",more:"M12 5h.01M12 12h.01M12 19h.01",chevron:"m9 6 6 6-6 6",volume:"M4 10v4h4l5 4V6l-5 4H4m11 0a4 4 0 0 1 0 4m2-7a8 8 0 0 1 0 10",expand:"M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5",clock:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7v5l3 2",download:"M12 3v12m0 0 4-4m-4 4-4-4M5 21h14",trash:"M5 7h14m-9 4v6m4-6v6M9 7V4h6v3m-9 0 1 14h10l1-14"
+  home:"M3 10.5 12 3l9 7.5v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",search:"M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM16 16l5 5",library:"M4 5.5h16v13H4zM8 9h8M8 13h8M8 17h5",settings:"M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4",play:"M8 5v14l11-7z",pause:"M7 5h4v14H7zM13 5h4v14h-4z",next:"M5 5v14l9-7zM18 5v14",prev:"M19 5v14l-9-7zM6 5v14",heart:"M20.8 8.9c0 5.5-8.8 10.1-8.8 10.1S3.2 14.4 3.2 8.9A5 5 0 0 1 12 5.4a5 5 0 0 1 8.8 3.5",queue:"M4 6h11M4 12h11M4 18h7m5-3 4 3-4 3",plus:"M12 5v14M5 12h14",back:"m15 5-7 7 7 7",close:"M6 6l12 12M18 6 6 18",shuffle:"M4 7h3c4 0 5 10 10 10h3M4 17h3c1.5 0 2.5-1.2 3.3-2.5M17 4l3 3-3 3M17 14l3 3-3 3",repeat:"M17 2l3 3-3 3M4 5h16v6M7 22l-3-3 3-3M20 19H4v-6",more:"M12 5h.01M12 12h.01M12 19h.01",chevron:"m9 6 6 6-6 6",volume:"M4 10v4h4l5 4V6l-5 4H4m11 0a4 4 0 0 1 0 4m2-7a8 8 0 0 1 0 10",music:"M9 18V5l10-2v13M9 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6m10-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6",expand:"M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5",clock:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7v5l3 2",download:"M12 3v12m0 0 4-4m-4 4-4-4M5 21h14",trash:"M5 7h14m-9 4v6m4-6v6M9 7V4h6v3m-9 0 1 14h10l1-14"
  };
  return <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={d[n]||d.more}/></svg>;
 };
@@ -16,7 +16,7 @@ const Icon=({n,s=20}:{n:string;s?:number})=>{
 const Art=({t,large=false}:{t?:Track;large?:boolean})=>{
  const seed=(t?.title||"Music").split("").reduce((a,c)=>a+c.charCodeAt(0),0)%10;
  if(t?.artworkUrl)return <div className={"art art-image"+(large?" large":"")}><img src={t.artworkUrl} alt="" loading="lazy"/></div>;
- return <div className={"art art-"+seed+(large?" large":"")}><span>{(t?.title||"M").charAt(0).toUpperCase()}</span></div>;
+ return <div className={"art art-"+seed+(large?" large":"")}><Icon n="music" s={large?72:44}/></div>;
 };
 const fmt=(n=0)=>Number.isFinite(n)&&n>=0?Math.floor(n/60)+":"+String(Math.floor(n%60)).padStart(2,"0"):"—";
 const stored=(k:string)=>{try{const x=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(x)?x:[]}catch{return[]}};
