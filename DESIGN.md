@@ -1,183 +1,89 @@
 # Music For All — Product & Interface
 
-## Reset
+Music For All is a local-first music player with the interaction grammar of a premium streaming product: persistent navigation, content shelves, artwork-led discovery, a desktop Now Playing rail, a persistent mini-player and an immersive full player.
 
-This version intentionally does not preserve the previous Music For All interface.
+## Product model
 
-The earlier prototype treated the product as a four-tab dashboard: Library, Discover, Downloads and Settings. That made the first screen feel like a utility console and forced storage implementation details into the primary navigation.
+- Local music is first-class and stays in the browser.
+- Home is a listening hub, not an editorial manifesto.
+- Search has two explicit modes: Your Library and Open Music.
+- Open Music is rights-aware and filtered to Public Domain / CC0 results before they can be kept.
+- Connected services are clearly marked future adapters and never imply local ownership.
+- No account is required.
+- No fake catalogue, social feed or algorithmic recommendation claims.
 
-The new product model is:
+## Information architecture
 
-**Home** — the personal listening room and first-run destination.
+Desktop:
+- Home
+- Search
+- Your Library
+- Recently added
+- Liked Songs
+- Add local music
+- Settings
+- Right-side Now Playing surface
 
-**Collection** — everything the user has kept, with songs/albums/artists and favourites.
-
-**Explore** — the rights-aware open catalogue.
-
-**Settings** — storage, installation and product information.
-
-Offline storage is a property of the collection, not a destination.
-
-## Product thesis
-
-Music For All is a private music shelf for files a person already has.
-
-The product should feel closer to opening a carefully kept record collection than opening a streaming service.
-
-There is:
-- no social feed
-- no recommendation wall
-- no account requirement
-- no fake catalogue
-- no algorithmic home feed
-- no attempt to disguise local files as a streaming service
-
-Open music is intentionally separate. Search can be broad, while the default keepable tier remains Public Domain and CC0.
-
-## Research-derived decisions
-
-Doppler demonstrates the value of making a local library first-class: local playback, recently added content, search, queue and album-oriented browsing are core rather than secondary features.
-
-Marvis demonstrates the usefulness of sections, grouping and sorting for people with substantial libraries, but also shows how configurability can become a product in itself. Music For All therefore exposes only the high-value organization primitives in v1: songs, albums, artists, favourites and sorting.
-
-Modus's dual-mode concept is useful for the browse/listen transition: browsing should optimize scanning while now playing should become an immersive listening environment. Music For All adopts that principle without copying its visual treatment.
-
-Apple's current guidance emphasizes clear hierarchy and separation between content and navigation. Music For All therefore uses a deliberately custom content identity while keeping navigation simple and predictable.
-
-## Visual language
-
-The new visual system is an editorial archive rather than a generic “music app” dashboard.
-
-Palette:
-- warm paper background
-- midnight navy listening environment
-- electric blue as the primary interaction accent
-- restrained coral for saved/favourite states
-- charcoal typography
-- thin structural rules
-
-Typography:
-- system sans for controls, metadata and utility
-- serif display typography for major editorial statements and listening identity
-
-Composition:
-- large typographic statements
-- asymmetrical editorial grids
-- album artwork as content, not decoration
-- thin rules instead of containers everywhere
-- deliberate empty space
-- numbered sections as an archival motif
-
-There is no Liquid Glass, glassmorphism, backdrop blur, frosted navigation, translucent player, or floating capsule system.
-
-## First-run experience
-
-The first visit is an onboarding experience, not an empty library.
-
-The onboarding explains three things:
-1. Local first — imported audio stays on the device.
-2. Open when useful — Public Domain and CC0 audio can be discovered separately.
-3. No account — the core product requires no login.
-
-The primary action is immediately importing music. A secondary action lets the person look around without importing anything.
-
-Once music exists, onboarding disappears and Home becomes the listening room.
+Mobile:
+- Home
+- Search
+- Library
+- Settings
+- Persistent mini-player above navigation
 
 ## Home
 
-Home answers one question: “What can I listen to right now?”
+The populated Home hierarchy is intentionally streaming-like:
+1. Greeting and primary Add music action
+2. Featured / Continue Listening hero
+3. Quick Picks
+4. Recently played
+5. Recently added
+6. Albums
+7. Artists
+8. All songs
 
-Its hierarchy is:
-1. product statement
-2. continue listening
-3. recently added
-4. albums
-5. import fallback when empty
+Rows are horizontally scannable where appropriate. The desktop player rail remains available while browsing.
 
-This avoids the previous dashboard feeling. The screen is editorial and content-led.
+The empty state is a compact first-run import experience rather than a fake content catalogue.
 
-## Collection
+## Library
 
-Collection answers: “What do I own here?”
+Songs, Albums and Artists are separate views. Local search, favourites, queue, deletion and direct playback remain available. Song rows are intentionally dense so large personal libraries remain scannable.
 
-The collection supports:
-- all music
-- favourites
-- songs
-- albums
-- artists
-- recently added/title/artist sorting
-- local search
-- direct playback
-- direct favourite/remove actions
+## Search / Open Music
 
-The row is intentionally dense. Album art, title and artist carry most of the information. Secondary metadata recedes.
+The global header search is the primary search control. Search switches between:
+- Your Library — local-only search.
+- Open Music — Openverse audio discovery restricted in the client to CC0 and Public Domain results.
 
-## Explore
+Open Music separates discovery from keeping. A Keep action fetches the recording into local storage. Source attribution remains visible. Openverse itself notes that it does not verify license accuracy, so the UI does not describe external works as universally rights-cleared; it surfaces the returned license and source for user verification.
 
-Explore answers: “What can I discover and legally keep?”
+## Playback
 
-It makes the rights boundary explicit before the search results.
+- Play / pause
+- Previous / next
+- Seek
+- Queue
+- Shuffle
+- Repeat off / all / one
+- Favourites
+- Recently played
+- Media Session controls
+- Responsive mini-player
+- Immersive full-screen player
+- Real playback progress
 
-The UI distinguishes:
-- Listen
-- Keep
+The player uses artwork as the primary visual surface and a restrained ambient background rather than decorative visualizers.
 
-Searching does not mutate the local collection.
+## Storage / PWA
 
-## Player
+Audio bytes are stored in OPFS with metadata in localStorage. Legacy IndexedDB data is still readable for migration compatibility.
 
-Now Playing is a different visual world.
+The application is an installable PWA. The service worker caches the app shell while deliberately excluding audio and external API requests from the cache path.
 
-Browse uses warm paper and blue accents. The player uses midnight navy and high-contrast artwork.
+## Visual system
 
-The player hierarchy is:
-1. artwork
-2. title
-3. artist / album
-4. progress
-5. playback
-6. shuffle / repeat
-7. queue
+Dark graphite surfaces, warm off-white controls, restrained amber accent, subtle violet/mint artwork fallbacks, dense shelves and high-contrast typography. Motion is used for navigation, artwork entry, hover states, queue presentation, progress and loading feedback.
 
-This is a listening environment, not another catalogue page.
-
-## Persistent mini-player
-
-The mini-player is a utility bridge between browse and listening. It does not become a floating design object.
-
-It exposes:
-- artwork
-- title
-- artist
-- play/pause
-- queue
-- progress
-
-The full player remains one tap away.
-
-## Storage
-
-Audio bytes live in OPFS. Small metadata lives separately. IndexedDB is retained only for compatibility with older builds.
-
-The import path is sequential and deliberately lightweight:
-- native duration probing
-- filename-derived metadata
-- one file written at a time
-- no embedded artwork extraction during import
-- cleanup on failed writes
-
-The storage architecture is not allowed to dictate the product's visual hierarchy.
-
-## Non-goals
-
-For this version:
-- no social features
-- no recommendation engine
-- no account system
-- no streaming-service imitation
-- no decorative audio visualizers
-- no settings maze
-- no dashboard cards for the sake of having cards
-
-The product earns complexity only when it makes keeping, finding or listening to music materially better.
+The design borrows interaction patterns from premium streaming products without using their branding, assets or catalogue data.
