@@ -13,17 +13,17 @@ export function LibraryProvider({children}:{children:ReactNode}){
  useEffect(()=>localStorage.setItem("mfa:recent",JSON.stringify(recent)),[recent]);
  useEffect(()=>{if(artworkBusy.current||!tracks.length)return;artworkBusy.current=true;(async()=>{try{for(const t of tracks.filter(x=>!x.artworkUrl).slice(0,8)){try{const controller=new AbortController();const timer=window.setTimeout(()=>controller.abort(),5000);const r=await fetch("https://itunes.apple.com/search?term="+encodeURIComponent(t.title+" "+t.artist)+"&entity=song&limit=1",{signal:controller.signal});window.clearTimeout(timer);if(!r.ok)continue;const d=await r.json() as {results?:{artworkUrl100?:string}[]};const url=d.results?.[0]?.artworkUrl100?.replace("100x100","600x600");if(url)await updateTrackMetadata(t.id,{artworkUrl:url})}catch{}}await refresh()}finally{artworkBusy.current=false}})()},[tracks.length,refresh]);
  const importFiles=async(e:ChangeEvent<HTMLInputElement>)=>{
-   const fs=Array.from(e.target.files||[]);if(!fs.length)return;setBusy(true);setImportError(null);let imported=0;let skipped=0;
+   const fs=Array.from(e.target.files||[]);if(!fs.length)return;setBusy(true);setImportError(null);let imported=0;let skipped=0;let failed=0;
    for(const f of fs){
-     if(!f.type.startsWith("audio/")&&!/\.(mp3|flac|m4a|m4b|aac|wav|ogg|opus|aiff|aif|alac|mp2)$/i.test(f.name)){skipped++;continue}
+     if(!f.type.startsWith("audio/")&&!/\.(mp3|flac|m4a|m4b|aac|wav|ogg|opus|aiff|aif|alac|mp2)$/i.test(f.name)){skipped++;continue}\n     if(tracks.some(t=>t.fileName===f.name&&t.fileSize===f.size)){skipped++;continue}
      try{
        const meta=parseName(f.name),id=uid(),blobId=uid(),probe=URL.createObjectURL(f),audio=new Audio(probe);
        const duration=await new Promise<number|undefined>(resolve=>{let done=false;const finish=()=>{if(done)return;done=true;const d=Number.isFinite(audio.duration)&&audio.duration>0?audio.duration:undefined;URL.revokeObjectURL(probe);audio.removeAttribute("src");resolve(d)};audio.onloadedmetadata=finish;audio.onerror=finish;window.setTimeout(finish,1500)});
-       await saveTrack({id,blobId,title:meta.title,artist:meta.artist,album:"Local Music",source:"local",duration,addedAt:Date.now()+imported,playCount:0},f);imported++;
-     }catch{skipped++}
+       await saveTrack({id,blobId,title:meta.title,artist:meta.artist,album:"Local Music",source:"local",duration,fileName:f.name,fileSize:f.size,addedAt:Date.now()+imported,playCount:0},f);imported++;
+     }catch{failed++}
    }
    await refresh();setBusy(false);e.target.value="";
-   if(skipped){const importedLabel=imported===1?"file":"files";const skippedLabel=skipped===1?"file":"files";setImportError(imported?`Imported ${imported} ${importedLabel}; skipped ${skipped} unsupported or unreadable ${skippedLabel}.`:"No supported audio files were imported.");}
+   if(failed||skipped){const importedLabel=imported===1?"file":"files";const skippedLabel=(failed+skipped)===1?"file":"files";setImportError(imported?`Imported ${imported} ${importedLabel}; skipped ${failed+skipped} duplicate, unsupported, or unreadable ${skippedLabel}.`:"No new supported audio files were imported.");}
  };
  const toggleFavorite=(id:string)=>setFavorites(x=>x.includes(id)?x.filter(v=>v!==id):[...x,id]);
  const removeTrack=async(t:StoredTrack)=>{await deleteTrack(t.id,t.blobId);setFavorites(x=>x.filter(v=>v!==t.id));setRecent(x=>x.filter(v=>v!==t.id));await refresh()};
