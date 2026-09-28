@@ -10,7 +10,7 @@ import type {StoredTrack} from "../../types";
 const play=(fn:(t:StoredTrack)=>Promise<void>,t:StoredTrack)=>{if(t.blobId)void fn(t)};
 const profileName=()=>{try{return localStorage.getItem("mfa:profile-name")?.trim()||""}catch{return""}};
 
-export function HomePage(){
+export function HomePage({onSearch}:{onSearch:()=>void}){
  const l=useLibrary(),p=usePlayback();
  const name=profileName();
  const tracks=l.ordered;
@@ -26,7 +26,7 @@ export function HomePage(){
      <p>Nothing gets invented here. Add the music you actually own, and Museflix will build the shelves around it.</p>
      <div className="empty-actions">
        <ArrowFillButton onClick={()=>document.getElementById("muse-import")?.click()}>Import music</ArrowFillButton>
-       <button onClick={()=>window.location.hash="search"}>Explore Open Music <Icon name="arrow" size={14}/></button>
+       <button onClick={onSearch}>Explore Open Music <Icon name="arrow" size={14}/></button>
      </div>
    </section>
    <div className="empty-principles">
