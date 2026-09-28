@@ -1,11 +1,11 @@
 import {useMemo,useState} from "react";
 import {useLibrary} from "../../library/LibraryContext";
 import {usePlayback} from "../../audio/PlaybackContext";
-import {Icon} from "../../components/ui/Icon";
+import {Icon} from "../../components/ui/Icon";import {Artwork} from "../../components/visual/Artwork";
 import type {StoredTrack} from "../../types";
 type MobileTab="playlists"|"artists"|"albums"|"folders";
 type Playlist={id:string;name:string;trackIds:string[];createdAt:number};
-const Art=({t}:{t:StoredTrack})=><div className="muse-art tiny">{t.artworkUrl?<img src={t.artworkUrl} alt=""/>:<span>M</span>}</div>;
+const Art=({t}:{t:StoredTrack})=><Artwork track={t} size="sm" index={2}/>;
 const readPlaylists=():Playlist[]=>{try{const x=JSON.parse(localStorage.getItem("mfa:playlists")||"[]");return Array.isArray(x)?x:[]}catch{return[]}};
 export function LibraryPage(){
  const l=useLibrary(),p=usePlayback(),[tab,setTab]=useState<"songs"|"albums"|"artists"|"favorites">("songs"),[mobileTab,setMobileTab]=useState<MobileTab>("playlists"),[selected,setSelected]=useState<Playlist|null>(null);
