@@ -1,7 +1,0 @@
-/* Museflix uses the ObsidianUI component language directly. Legacy surface overrides removed. */
-.obs-arrow-btn,.purple-button{font-family:Manrope,system-ui,sans-serif}
-.obs-arrow-circle,.obs-controls .obs-play{background:var(--accent)!important;color:var(--accent-ink)!important}
-.obs-music-card{border-color:var(--line)!important;background:linear-gradient(145deg,var(--surface-2),var(--surface))!important}
-.obs-music-inner{border-color:var(--line)!important;background:linear-gradient(145deg,var(--surface-3),var(--surface))!important}
-.obs-track-info h1{letter-spacing:-.055em}
-.obs-track-info>button.is-on,.obs-controls>button.is-on,.obs-wave i.lit{color:var(--accent)!important;background-color:var(--accent)!important}
