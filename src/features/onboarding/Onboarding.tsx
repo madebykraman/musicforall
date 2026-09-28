@@ -12,7 +12,6 @@ export function Onboarding({onComplete}:{onComplete:()=>void}){
   const[step,setStep]=useState<"intro"|"setup">("intro");
   const[name,setName]=useState(()=>localStorage.getItem("mfa:profile-name")||"");
   const[showConnectors,setShowConnectors]=useState(false);
-  const[notice,setNotice]=useState("");
   const finish=()=>{
     const clean=name.trim().slice(0,32);
     if(clean)localStorage.setItem("mfa:profile-name",clean);else localStorage.removeItem("mfa:profile-name");
