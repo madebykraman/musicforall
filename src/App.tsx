@@ -59,7 +59,7 @@ export default function App(){
  async function clearLibrary(){if(!tracks.length)return;if(!confirm("Delete all local music from this device?"))return;setBusy(true);for(const t of tracks)await deleteTrack(t.id,t.blobId);audio.current.pause();setTracks([]);setSelected(null);setQueue([]);setFavorites([]);setRecent([]);setBusy(false);setToast("Library cleared")}
  async function installApp(){if(!install.current){setToast("Safari → Share → Add to Home Screen");return}await install.current.prompt();install.current=null;setInstallable(false)}
  function nav(s:Screen){setScreen(s);window.scrollTo({top:0,behavior:"smooth"})}
- if(!onboarded)return <Onboarding finish={()=>{localStorage.setItem("mfa:onboarded","1");setOnboarded(true)}} importMusic={()=>input.current?.click()}/>;
+ if(!onboarded)return <Onboarding finish={()=>{localStorage.setItem("mfa:onboarded","1");setOnboarded(true)}} importMusic={()=>{localStorage.setItem("mfa:onboarded","1");setOnboarded(true);setTimeout(()=>input.current?.click(),0)}}/>;
  if(full&&selected)return <FullPlayer track={selected} playing={playing} time={time} toggle={toggle} next={()=>advance(1)} prev={()=>advance(-1)} close={()=>setFull(false)} favorite={favorites.includes(selected.id)} fav={()=>fav(selected.id)} shuffle={shuffle} setShuffle={setShuffle} repeat={repeat} setRepeat={setRepeat} queue={()=>setQueueOpen(true)}/>;
  return <div className="mf-app">
   <input ref={input} hidden type="file" accept="audio/*" multiple onChange={importFiles}/>
