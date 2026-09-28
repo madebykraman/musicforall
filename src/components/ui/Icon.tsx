@@ -13,6 +13,7 @@ queue:"M4 6h11M4 12h11M4 18h7m5-3 4 3-4 3",plus:"M12 5v14M5 12h14",chevron:"m9 6
 sliders:"M4 7h16M4 17h16M8 4v6M16 14v6",clock:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7v5l3 2",monitor:"M4 5h16v12H4zM9 21h6M12 17v4",moon:"M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z",
 folder:"M3 7h7l2 2h9v10H3z",download:"M12 3v12m0 0 4-4m-4 4-4-4M4 21h16",trash:"M5 7h14M9 7V4h6v3m-8 0 1 13h8l1-13",bell:"M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4",close:"M6 6l12 12M18 6 6 18",more:"M6 12h.01M12 12h.01M18 12h.01",
 apple:"M16.8 12.2c0-2 1.7-3 1.8-3.1-.9-1.3-2.3-1.5-2.8-1.5-1.2-.1-2.4.8-3 .8-.6 0-1.5-.8-2.5-.8-1.3 0-2.5.8-3.2 1.9-1.4 2.3-.4 5.7 1 7.6.7.9 1.5 1.9 2.6 1.9 1 0 1.4-.6 2.7-.6 1.3 0 1.7.6 2.7.6 1.1 0 1.8-.9 2.5-1.8.8-1 1.1-2.1 1.1-2.1-.1 0-2.9-1.1-2.9-3.3ZM15 5.6c.6-.8 1-1.9.9-3-.9 0-2 .6-2.6 1.3-.6.7-1.1 1.8-.9 2.8 1 .1 2-.5 2.6-1.1Z",
-android:"M7 9h10v9H7zM9 5l-2-2m8 2 2-2M9 7V5h6v2M5 10v6M19 10v6",windows:"M3 5l8-1v7H3zm9-1 9-1v8h-9zM3 12h8v8l-8-1zm9 0h9v9l-9-1z"
+android:"M7 9h10v9H7zM9 5l-2-2m8 2 2-2M9 7V5h6v2M5 10v6M19 10v6",windows:"M3 5l8-1v7H3zm9-1 9-1v8h-9zM3 12h8v8l-8-1zm9 0h9v9l-9-1z",
+music:"M9 18V5l10-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm10-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",link:"M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1M14 11a5 5 0 0 0-7.1-.1l-2 2A5 5 0 0 0 12 20l1.1-1.1",arrow:"M5 12h13m-5-5 5 5-5 5"
 };
 export function Icon({name,size=19,className,style}:{name:string;size?:number;className?:string;style?:CSSProperties}){return <svg className={className} style={style} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name]||paths.home}/></svg>}
