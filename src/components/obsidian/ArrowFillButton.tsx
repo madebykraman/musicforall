@@ -1,0 +1,1 @@
+import type {ButtonHTMLAttributes,ReactNode} from "react";export function ArrowFillButton({children,className="",...props}:{children:ReactNode;className?:string}&ButtonHTMLAttributes<HTMLButtonElement>){return <button className={"obs-arrow-fill "+className} {...props}><span>{children}</span><i aria-hidden="true">↗</i></button>}
