@@ -17,7 +17,7 @@ export function ObsidianArrowButton({children,onClick}:{children:ReactNode;onCli
  return <button type="button" className="obs-arrow-btn" onClick={onClick}>{children}<span className="obs-arrow-circle"><I name="next" size={13}/></span></button>;
 }
 
-export function ObsidianMusicCard({track,playing,time,onToggle,onPrev,onNext,favorite,onFavorite,shuffle,onShuffle,repeat,onRepeat}:{track:StoredTrack;playing:boolean;time:number;onToggle:()=>void;onPrev:()=>void;onNext:()=>void;favorite:boolean;onFavorite:()=>void;shuffle:boolean;onShuffle:()=>void;repeat:Repeat;onRepeat:()=>void}) {
+export function ObsidianMusicCard({track,playing,time,onToggle,onPrev,onNext,favorite,onFavorite,shuffle,onShuffle,repeat,onRepeat,sleepTimer,onSleepTimer}:{track:StoredTrack;playing:boolean;time:number;onToggle:()=>void;onPrev:()=>void;onNext:()=>void;favorite:boolean;onFavorite:()=>void;shuffle:boolean;onShuffle:()=>void;repeat:Repeat;onRepeat:()=>void;sleepTimer:number|null;onSleepTimer:()=>void}) {
  const pct=Math.max(0,Math.min(100,(time/Math.max(track.duration||1,1))*100));
  return <section className="obs-music-card">
    <div className="obs-music-inner">
@@ -32,7 +32,7 @@ export function ObsidianMusicCard({track,playing,time,onToggle,onPrev,onNext,fav
        <button onClick={onNext} aria-label="Next"><I name="next" size={24}/></button>
        <button className={repeat!=="off"?"is-on":""} onClick={onRepeat} aria-label="Repeat"><I name="repeat" size={18}/></button>
      </div>
-     <div className="obs-actions"><button type="button">Lyrics</button><button type="button">Credits</button><button type="button">Sleep timer</button></div>
+     <div className="obs-actions"><button type="button">Lyrics</button><button type="button">Credits</button><button type="button" onClick={onSleepTimer}>Sleep {sleepTimer===null?"timer":sleepTimer<60?sleepTimer+"s":Math.ceil(sleepTimer/60)+"m"}</button></div>
    </div>
  </section>;
 }
