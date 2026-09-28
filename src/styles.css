@@ -167,3 +167,5 @@ body{background:#070912;background-image:radial-gradient(900px 520px at 74% -12%
  .muse-content{padding-bottom:calc(90px + env(safe-area-inset-bottom))!important}
  .muse-player-dock{left:0!important;right:0!important;bottom:calc(59px + env(safe-area-inset-bottom))!important;border-radius:8px 8px 0 0!important}
 }
+
+.eq-status{display:flex;align-items:center;justify-content:space-between;padding:11px 0;margin-bottom:13px;border-bottom:1px solid #fff1;font:8px var(--mono);color:var(--muted)}.eq-status span{display:flex;align-items:center;gap:7px}.eq-status i{width:7px;height:7px;border-radius:50%;background:#777}.eq-status i.ready{background:#8c63ff;box-shadow:0 0 12px #8c63ff}.eq-status button{color:#b48bff;font:8px var(--mono)}
