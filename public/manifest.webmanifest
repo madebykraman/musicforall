@@ -1,6 +1,6 @@
 {
-  "name":"Musicflix",
-  "short_name":"Musicflix",
+  "name":"Museflix",
+  "short_name":"Museflix",
   "description":"A local-first music player for your own music.",
   "start_url":"./",
   "scope":"./",
