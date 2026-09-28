@@ -1,88 +1,62 @@
 # Music For All
 
-A private, local-first music shelf for the web.
+A local-first music player for people who already own their music.
 
-Music For All is built around a simple idea: bring the music you already have into a place that feels like yours.
-
-No account is required. Imported audio stays on the device. Open music discovery is separate and rights-aware.
+Music For All keeps imported audio on the device and gives it a premium streaming-style interface without requiring an account or pretending local files are a streaming catalogue.
 
 ## Product
 
-The product has four spaces:
+- **Home** — hero listening state, Quick Picks, recent music, albums, artists and dense song shelves.
+- **Search** — searches the local library only.
+- **Your Library** — songs, albums, artists, favourites, queue and destructive library controls.
+- **Settings** — local storage, connected-service adapters and the separate open-music workflow.
 
-- **Home** — your listening room, continue listening, recent additions and album shelf.
-- **Collection** — songs, albums, artists and favourites.
-- **Explore** — public-domain and CC0 discovery.
-- **Settings** — storage, installation and product information.
+The interface is intentionally inspired by the interaction grammar of premium streaming products: persistent navigation, horizontal shelves, artwork-led cards, a dedicated desktop player, a persistent mini-player and an immersive full-screen player. It does not use Spotify or Netflix branding, assets or catalogue data.
 
-Offline files are part of the Collection rather than a separate destination.
+## Local playback
 
-## Design
+Imported audio is stored in Origin Private File System (OPFS), with metadata in localStorage. Legacy IndexedDB libraries can be recovered.
 
-The current interface is a zero-based redesign, not a restyle of the original prototype.
+Supported browser audio formats depend on the browser's native decoder.
 
-It uses an editorial archive language:
-- warm paper content surfaces
-- midnight navy player
-- electric-blue interaction accent
-- serif display typography
-- large editorial composition
-- thin structural rules
-- artwork-led shelves
-- dense catalogue rows
-- a separate listening environment
-
-There is no Liquid Glass, glassmorphism, backdrop blur, frosted navigation, translucent player or floating capsule system.
-
-The first-run experience is a real onboarding flow explaining local storage, open music and the account-free model before inviting the person to import music.
-
-See DESIGN.md for the product model and UX decisions.
-
-## Storage
-
-Audio files are stored in Origin Private File System (OPFS). Small library metadata is stored separately.
-
-The architecture intentionally avoids putting audio Blobs into IndexedDB. A legacy IndexedDB reader remains only to recover libraries created by older builds.
-
-Import is sequential and lightweight:
-- native duration probing
-- filename-derived title/artist metadata
-- one file written at a time
-- no cover-art extraction during import
-- cleanup when a write fails
-
-The application does not depend on a service-worker cache for playback.
-
-## Features
-
-- local MP3 / FLAC / M4A / WAV / AIFF import
+Playback includes:
 - persistent local playback
-- recently added
-- songs / albums / artists
-- favourites
-- search and sorting
-- queue
-- shuffle and repeat
+- play / pause / previous / next
 - seek
-- Media Session compatibility
-- rights-aware open catalogue
-- Public Domain / CC0 download eligibility
-- responsive mobile and desktop UI
-- installable web app metadata
-
-## Open catalogue
-
-Openverse is used as a discovery layer.
-
-Music For All narrows the default keepable tier to Public Domain and CC0. Other open licences may require attribution or have additional restrictions, so discovery should never be treated as blanket download permission.
+- queue
+- shuffle
+- repeat off / all / one
+- favourites
+- recently played
+- Media Session controls
+- responsive desktop and mobile player surfaces
+- individual track deletion
+- complete library deletion
+- animated import/loading feedback
 
 ## Connected services
 
-Apple Music and Spotify are future adapters. They remain separate from local ownership and are not required for the core product.
+Settings contains clearly separated connector surfaces for:
+- Apple Music
+- Spotify
+- YouTube Music
+- YouTube
+
+These are adapter entry points only until their respective authentication/API integrations are implemented. They never imply that connected catalogue content is locally owned or downloadable.
+
+## Open music
+
+Open music is intentionally isolated from Home, Search and Your Library. The rights-aware workflow remains available only from Settings, where Public Domain and CC0 are explicitly distinguished from the user's local collection.
+
+## Design
+
+The visual system uses Onest as the primary grotesque typeface, a dark graphite base, restrained violet/amber/mint gradients, dense content shelves, responsive motion, elevated artwork cards and an immersive player.
+
+The design is deliberately not a generic dashboard, editorial landing page or translucent-glass clone.
 
 ## Stack
 
-Vite · React · TypeScript · OPFS · localStorage · HTML Audio
+Vite · React · TypeScript · OPFS · localStorage · HTML Audio · Media Session API
 
 ## License
 
