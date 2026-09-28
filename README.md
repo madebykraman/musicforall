@@ -1,8 +1,8 @@
-# Music For All
+# Museflix
 
 A local-first music player for people who already own their music.
 
-Music For All gives personal audio a premium streaming-style interface without requiring an account or pretending local files are part of a commercial catalogue.
+Museflix gives personal audio a premium streaming-style interface without requiring an account or pretending local files are part of a commercial catalogue.
 
 ## Product
 
@@ -11,7 +11,7 @@ Music For All gives personal audio a premium streaming-style interface without r
 - **Your Library** — songs, albums, artists, favourites, queue and library management.
 - **Settings** — storage, PWA installation, future connected-service adapters and product information.
 
-The interface uses the interaction grammar of products such as Spotify and Netflix: persistent navigation, horizontal shelves, strong content hierarchy and a dedicated Now Playing surface. It does not use their branding, assets or catalogue data.
+The interface is built around the ObsidianUI design language: near-black surfaces, restrained borders, editorial typography, tactile controls, subtle motion and a dedicated Now Playing surface. Adapted ObsidianUI source patterns are used under its MIT license.
 
 ## Local playback
 
@@ -51,7 +51,7 @@ These are not implemented authentication or catalogue integrations yet and never
 
 ## PWA
 
-Music For All is installable as a web app. The service worker caches the application shell while audio files and external API requests remain outside the shell cache.
+Museflix is installable as a web app. The service worker caches the application shell while audio files and external API requests remain outside the shell cache.
 
 On iPhone Safari, use Share → Add to Home Screen → Open as Web App.
 
