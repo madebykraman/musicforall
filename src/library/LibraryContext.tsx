@@ -23,7 +23,7 @@ export function LibraryProvider({children}:{children:ReactNode}){
      }catch{skipped++}
    }
    await refresh();setBusy(false);e.target.value="";
-   if(skipped)setImportError(imported?\`Imported ${imported} file${imported===1?"":"s"}; skipped ${skipped} unsupported or unreadable file${skipped===1?"":"s"}.`:"No supported audio files were imported.");
+   if(skipped){const importedLabel=imported===1?"file":"files";const skippedLabel=skipped===1?"file":"files";setImportError(imported?`Imported ${imported} ${importedLabel}; skipped ${skipped} unsupported or unreadable ${skippedLabel}.`:"No supported audio files were imported.");}
  };
  const toggleFavorite=(id:string)=>setFavorites(x=>x.includes(id)?x.filter(v=>v!==id):[...x,id]);
  const removeTrack=async(t:StoredTrack)=>{await deleteTrack(t.id,t.blobId);setFavorites(x=>x.filter(v=>v!==t.id));setRecent(x=>x.filter(v=>v!==t.id));await refresh()};
